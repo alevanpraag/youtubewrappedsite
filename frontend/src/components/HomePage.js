@@ -18,7 +18,7 @@ export default class HomePage extends Component {
         return (
             <Router>
                 <Routes>
-                    <Route path="/" element={<p>this is the home page</p>}/>
+                    <Route path="/" element={<h1>this is the home page</h1>}/>
                     <Route path="/create" element={<CreateWrapPage/>}/>
                     <Route path="/mywrap/:code" element={<MyWrapPage/>}/>
                 </Routes>

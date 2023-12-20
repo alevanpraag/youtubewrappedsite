@@ -59,9 +59,7 @@ export default function CreateWrapPage(props) {
                 style: { textAlign: "center" },
               }}
             />
-            <FormHelperText>
-              <div align="center">Name</div>
-            </FormHelperText>
+              <FormHelperText>Name</FormHelperText>
           </FormControl>
         </Grid>
         <Grid item xs={12} align="center">
