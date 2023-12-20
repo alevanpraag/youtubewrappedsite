@@ -1,51 +1,36 @@
-import React, { Component } from "react";
+import React, { Component, useState } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
-import { Link } from "react-router-dom";
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 
-export default class CreateWrapPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: "",
-      file: null,
-    };
+export default function CreateWrapPage(props) {
+  const [name, setName] = useState("");
+  const [file, setFile] = useState(null);
+  const navigate = useNavigate();
 
-    this.handleUploadPressed = this.handleUploadPressed.bind(this);
-    this.handleNameChange = this.handleNameChange.bind(this);
-    this.handleFileChange = this.handleFileChange.bind(this);
+  function handleNameChange(e) {
+    setName(e.target.value);
   }
 
-  handleNameChange(e) {
-    this.setState({
-      name: e.target.value,
-    });
+  function handleFileChange(e) { 
+    setFile(e.target.files[0]);
   }
 
-  handleFileChange(e) { 
-    this.setState({
-      file: e.target.files[0],
-    });
-  }
-
-  gotoWrapPage(data)
+  function gotoWrapPage(data)
   {
-    console.log(data.code);
-    const code = data.code
-    this.props.history.push('/mywrap/'+code);
+    const code = data.code;
+    navigate('/mywrap/'+code);
   }
 
-
-  handleUploadPressed = async (e) =>{
-    e.preventDefault()
+  function handleUploadPressed() {
     let form_data = new FormData();
-    form_data.append("file", this.state.file);
-    form_data.append("name", this.state.name);    
+    form_data.append("file", file);
+    form_data.append("name", name);    
     const requestOptions = {
       method: "POST",
       headers: {'X-CSRFToken': "{{ csrf_token }}", },
@@ -53,10 +38,9 @@ export default class CreateWrapPage extends Component {
     };
     fetch("/api/create-wrap", requestOptions)
       .then((response) => response.json())
-      .then((data) => this.gotoWrapPage(data));
+      .then((data) => gotoWrapPage(data));
   }
 
-  render() {
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
@@ -69,7 +53,7 @@ export default class CreateWrapPage extends Component {
             <TextField
               required={true}
               type="text"
-              onChange={this.handleNameChange}
+              onChange={handleNameChange}
               inputProps={{
                 min: 1,
                 style: { textAlign: "center" },
@@ -82,14 +66,14 @@ export default class CreateWrapPage extends Component {
         </Grid>
         <Grid item xs={12} align="center">
         <form>
-                    <input type="file" name="file" onChange={this.handleFileChange}></input>
+                    <input type="file" name="file" onChange={handleFileChange}></input>
                 </form>
         </Grid>        
         <Grid item xs={12} align="center">
           <Button
             color="primary"
             variant="contained"
-            onClick={this.handleUploadPressed}
+            onClick={handleUploadPressed}
           >
             Create Wrap
           </Button>
@@ -101,5 +85,4 @@ export default class CreateWrapPage extends Component {
         </Grid>
       </Grid>
     );
-  }
 }
