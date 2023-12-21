@@ -20,3 +20,12 @@ class Wrapped(models.Model):
     name = models.CharField(max_length=64)
     file = models.FileField(upload_to="watch_history/jsons/")
     created_at = models.DateTimeField(auto_now_add=True) 
+    count = models.IntegerField(null=False, default=1)
+    
+""" class Video(models.Model):
+    code = models.CharField(max_length=8)
+    title = models.CharField(max_length=100)    
+    artist = models.CharField(max_length=100)
+    duration = models.IntegerField(null=False)
+    genre = models.CharField(max_length=100) 
+    count = models.IntegerField(null=False, default=1) """

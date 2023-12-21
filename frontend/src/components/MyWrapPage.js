@@ -9,24 +9,27 @@ const pages = {
     END: 'pages.end'
 };
 
-function startInfo(){
-    return "Start Page";
-}
-
-function endInfo(){
-    return "End Page";
-}
-
 export default function MyWrapPage(props){
     const [page, setPage] = useState(pages.START);
     const [name, setName] = useState("");
+    const [count, setCount] = useState(0)
     let { code } = useParams();
+    
+    
     getWrapDetails();
-
+    function startInfo(){
+      const videos = "" + count
+      return "You watched"+ videos +"videos";
+  }
+  
+    function endInfo(){
+        return "End Page";
+  }
     function getWrapDetails(){
         fetch('/api/get-wrap' + '?code=' + code)
         .then((response) => response.json()) 
-        .then((data) => {setName(data.name)})
+        .then((data) => {setName(data.name)
+                          setCount(data.count)})
     }
 
     return (
