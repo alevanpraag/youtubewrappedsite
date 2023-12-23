@@ -3,10 +3,11 @@ import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
-import FormLabel from "@material-ui/core/FormLabel";
+import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import { Link, useNavigate } from 'react-router-dom';
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+
 
 export default function CreateWrapPage(props) {
   const [name, setName] = useState("");
@@ -21,10 +22,9 @@ export default function CreateWrapPage(props) {
     setFile(e.target.files[0]);
   }
 
-  function gotoWrapPage(data)
-  {
-    const code = data.code;
-    navigate('/mywrap/'+code);
+  function goToLoad(data) {
+    const code = "" + data.code
+    navigate('/loading/'+code)
   }
 
   function handleUploadPressed() {
@@ -38,13 +38,13 @@ export default function CreateWrapPage(props) {
     };
     fetch("/api/create-wrap", requestOptions)
       .then((response) => response.json())
-      .then((data) => gotoWrapPage(data));
+      .then((data) => goToLoad(data));
   }
 
     return (
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         <Grid item xs={12} align="center">
-          <Typography component="h4" variant="h4">
+          <Typography component="h3" variant="h3">
             Create A Wrap
           </Typography>
         </Grid>
@@ -59,7 +59,7 @@ export default function CreateWrapPage(props) {
                 style: { textAlign: "center" },
               }}
             />
-              <FormLabel>Name</FormLabel>
+              <FormHelperText>Name</FormHelperText>
           </FormControl>
         </Grid>
         <Grid item xs={12} align="center">
@@ -68,13 +68,12 @@ export default function CreateWrapPage(props) {
                 </form>
         </Grid>        
         <Grid item xs={12} align="center">
-          <Button
-            color="primary"
-            variant="contained"
-            onClick={handleUploadPressed}
-          >
-            Create Wrap
-          </Button>
+            <Button
+          color="primary"
+          variant="contained"
+          onClick={handleUploadPressed}
+        > Create Wrap
+        </Button>
         </Grid>
         <Grid item xs={12} align="center">
           <Button color="secondary" variant="contained" to="/" component={Link}>
