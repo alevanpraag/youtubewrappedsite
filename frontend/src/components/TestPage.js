@@ -1,5 +1,5 @@
-import React from "react";
-import { Grid, Typography, withStyles} from "@material-ui/core";
+import React, { useState } from "react";
+import { Grid, Typography, withStyles, Button} from "@material-ui/core";
 
 const RedTextTypography = withStyles({
   root: {
@@ -7,7 +7,14 @@ const RedTextTypography = withStyles({
   }
 })(Typography);
 export default function TestPage(props){
-    
+    const [file, setFile] = useState(null);
+    const [filename, setFilename] = useState(<span>Choose a File&hellip;</span>);    
+  
+    function handleFileChange(e) { 
+      setFile(e.target.files[0]);
+      setFilename(<span>{e.target.files[0].name}</span>)
+    }    
+
   return (
     <Grid container spacing={1}>
       <Grid item xs={12} align="center">
@@ -17,7 +24,11 @@ export default function TestPage(props){
         <RedTextTypography component="h4" variant="h4" color="textSecondary">
           Creating Your 2023 Wrapped
         </RedTextTypography>
-      </Grid>           
+      </Grid>     
+      <Grid item xs={12} align="center">
+        <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".jpeg"/>
+		<label htmlFor="file"> {filename}</label>      
+      </Grid>                
     </Grid>
     )
 }

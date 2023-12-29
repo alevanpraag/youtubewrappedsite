@@ -6,7 +6,7 @@ import TextField from "@material-ui/core/TextField";
 import FormHelperText from "@material-ui/core/FormHelperText";
 import FormControl from "@material-ui/core/FormControl";
 import { Link, useNavigate } from 'react-router-dom';
-import FormControlLabel from "@material-ui/core/FormControlLabel";
+import { withStyles } from "@material-ui/core";
 
 
 export default function CreateWrapPage(props) {
@@ -40,13 +40,18 @@ export default function CreateWrapPage(props) {
       .then((response) => response.json())
       .then((data) => goToLoad(data));
   }
-
+  const MainText = withStyles({
+    root: {
+        color: "#1d3557"
+    }
+  })(Typography); 
+ 
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
-          <Typography component="h3" variant="h3">
+          <MainText component="h3" variant="h3">
             Create A Wrap
-          </Typography>
+          </MainText>
         </Grid>
         <Grid item xs={12} align="center">
         <FormControl>
@@ -64,7 +69,7 @@ export default function CreateWrapPage(props) {
         </Grid>
         <Grid item xs={12} align="center">
         <form>
-                    <input type="file" name="file" onChange={handleFileChange}></input>
+                    <input type="file" name="file" onChange={handleFileChange} accept=".json"></input>
                 </form>
         </Grid>        
         <Grid item xs={12} align="center">
@@ -72,12 +77,12 @@ export default function CreateWrapPage(props) {
           color="primary"
           variant="contained"
           onClick={handleUploadPressed}
-        > Create Wrap
+        > CREATE
         </Button>
         </Grid>
         <Grid item xs={12} align="center">
           <Button color="secondary" variant="contained" to="/" component={Link}>
-            Back
+            BACK
           </Button>
         </Grid>
       </Grid>

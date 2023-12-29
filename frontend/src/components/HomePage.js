@@ -3,6 +3,7 @@ import CreateWrapPage from "./CreateWrapPage";
 import MyWrapPage from "./MyWrapPage";
 import LoadingPage from "./LoadingPage";
 import TestPage from "./TestPage";
+import { Grid, Button, Typography, withStyles } from "@material-ui/core";
 
 import { 
     BrowserRouter as Router, 
@@ -13,7 +14,32 @@ import {
 } from "react-router-dom"
 
 function renderHomePage(){
-    return (<h1>home page</h1>);
+    const BlueButton = withStyles({
+        root: {
+            background: "#669bbc",
+            color: "#fdf0d5"
+        }
+      })(Button);    
+
+    const RedTextTypography = withStyles({
+        root: {
+          color: "#1d3557"
+        }
+      })(Typography);
+
+    return (
+        <Grid container spacing={1}>
+        <Grid item xs={12} align="center">
+        <RedTextTypography component="h1" variant="h1">
+            YouTube Rewind
+          </RedTextTypography>
+        </Grid>
+        <Grid item xs={12} align="center">
+        <BlueButton variant="contained" to="/create" component={Link}>
+            Begin
+          </BlueButton>
+        </Grid>           
+      </Grid>);
   }
 
 export default function HomePage(props) {

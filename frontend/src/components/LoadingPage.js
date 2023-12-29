@@ -29,7 +29,7 @@ export default function LoadingPage(props){
         <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
         </Grid>
         <Grid item xs={12} align="center">
-          <RedTextTypography component="h4" variant="h4" color="textSecondary">
+          <RedTextTypography component="h4" variant="h4">
             Creating Your 2023 Wrapped
           </RedTextTypography>
         </Grid>           
