@@ -12,6 +12,7 @@ import { withStyles } from "@material-ui/core";
 export default function CreateWrapPage(props) {
   const [name, setName] = useState("");
   const [file, setFile] = useState(null);
+  const [filename, setFilename] = useState(<span>Choose a File&hellip;</span>);  
   const navigate = useNavigate();
 
   function handleNameChange(e) {
@@ -20,6 +21,7 @@ export default function CreateWrapPage(props) {
 
   function handleFileChange(e) { 
     setFile(e.target.files[0]);
+    setFilename(<span>{e.target.files[0].name}</span>);    
   }
 
   function goToLoad(data) {
@@ -50,7 +52,7 @@ export default function CreateWrapPage(props) {
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
           <MainText component="h3" variant="h3">
-            Create A Wrap
+            Create A Rewind
           </MainText>
         </Grid>
         <Grid item xs={12} align="center">
@@ -68,17 +70,15 @@ export default function CreateWrapPage(props) {
           </FormControl>
         </Grid>
         <Grid item xs={12} align="center">
-        <form>
-                    <input type="file" name="file" onChange={handleFileChange} accept=".json"></input>
-                </form>
+        <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json"/>
+		    <label htmlFor="file"> {filename}</label>
         </Grid>        
         <Grid item xs={12} align="center">
-            <Button
-          color="primary"
-          variant="contained"
+            <div
+          className="createbutton"
           onClick={handleUploadPressed}
         > CREATE
-        </Button>
+        </div>
         </Grid>
         <Grid item xs={12} align="center">
           <Button color="secondary" variant="contained" to="/" component={Link}>

@@ -19,6 +19,30 @@ body {
     background-color: #fdf0d5;    
 }
 
+h3 {
+    font-family: 'Rubik Glitch';
+    font-size: 5rem;
+    font-weight: 400;
+    margin: 0;
+    color: #780000
+}
+
+h1 {
+    font-family: 'Roboto';
+    font-size: 2rem;
+    font-weight: 400;
+    margin: 0;
+    color: #c1121f;
+}
+
+.rectangle {
+  height: 270px;
+  width: 480px;
+  color: #EAF0F6;
+  border-style: solid;
+  border-color: #780000;
+}
+
 .center {
     position: absolute;
     top: 50%;
@@ -38,8 +62,9 @@ body {
 .inputfile + label {
     max-width: 80%;
     font-size: 1.25rem;
-    color: #f1e5e6;
-    background-color: #d3394c;    
+    color: #EAF0F6;
+    background-color: #c1121f;    
+    border-radius: 10px;
     /* 20px */
     font-weight: 700;
     text-overflow: ellipsis;
@@ -71,7 +96,35 @@ body {
 .inputfile:focus + label,
 .inputfile.has-focus + label,
 .inputfile + label:hover {
-    background-color: #722040;
+    background-color: #780000;
+}
+
+.createbutton {
+    max-width: 80%;
+    font-size: 1.25rem;
+    color: #EAF0F6;
+    background-color: #669bbc;    
+    border-radius: 10px;
+    /* 20px */
+    font-weight: 100;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.625rem 1.25rem;
+    /* 10px 20px */
+}
+
+.createbutton:focus,
+.createbutton.has-focus {
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.createbutton:hover {
+    background-color: #780000;
+    color: #EAF0F6;
 }
 
 .loader {

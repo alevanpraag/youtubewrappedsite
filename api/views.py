@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics, status
-from .serializers import WrappedSerializer, CreateWrapSerializer
-from .models import Wrapped
+from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer
+from .models import Wrapped, Video
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from datetime import datetime
@@ -46,11 +46,12 @@ class CreateWrapView(APIView):
         
 class ProcessWrap(APIView):
     serializer_class = WrappedSerializer
+    vid_serializer = VideoSerializer
     lookup_url_kwarg = 'code'
     my_key = 'AIzaSyAj_otQff7NB2HsyD1RZFiNBLGgFw1uAzg'
 
     def get_data(self,key, region, *ids):
-        url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}"
+        url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails"
         r = requests.get(url.format(ids=",".join(ids), api_key=key))
         js = r.json()
         items = js["items"]
@@ -59,7 +60,7 @@ class ProcessWrap(APIView):
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
             try:
-                yield item["snippet"]["title"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"]
+                yield item["snippet"]["title"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], item['snippet']['thumbnails']['default']['url'], item['contentDetails']['duration']
             except:
                 continue
             
@@ -77,20 +78,22 @@ class ProcessWrap(APIView):
                         video_list.append(video_id)
         return video_list
             
-    def get_music_only(self,key, json_file):    
+    def get_music_only(self,key, json_file,wrap):    
         music_list = []
         video_list = self.get_ids(json_file)
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
-            for title, cat, chnl in self.get_data(key, "IE",  *video_sublst):
+            for title, cat, chnl, thmnl, dur in self.get_data(key, "IE",  *video_sublst):
                 if cat == "Music":
-                    item = title + "," + chnl
-                    music_list.append(item)
+                    video = Video(wrap = wrap, title = title, channel = chnl, duration = dur,
+                                    category = cat, thumbnail = thmnl)
+                    video.save()
+                    music_list.append(video)
         return music_list  
 
-    def history_count(self,json_file):
+    def history_count(self,json_file,wrap):
         with json_file.file.open('r') as f:
-            my_music_list = self.get_music_only(self.my_key,f)
+            my_music_list = self.get_music_only(self.my_key,f,wrap)
             watch_count = len(my_music_list)
             return watch_count
         return 0
@@ -101,7 +104,7 @@ class ProcessWrap(APIView):
             queryset = Wrapped.objects.filter(code=code)
             if len(queryset) > 0:
                 wrap = queryset[0]   
-                wrap.count = self.history_count(wrap.file)
+                wrap.count = self.history_count(wrap.file,wrap)
                 wrap.save(update_fields=['count'])
                 return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)

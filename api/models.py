@@ -21,3 +21,12 @@ class Wrapped(models.Model):
     file = models.FileField(upload_to="watch_history/jsons/")
     created_at = models.DateTimeField(auto_now_add=True) 
     count = models.IntegerField(null=False, default=0)
+
+class Video(models.Model):
+    wrap = models.ForeignKey('Wrapped', related_name='videos', on_delete=models.CASCADE)   
+    title = models.CharField(max_length=100)    
+    channel = models.CharField(max_length=100)  
+    duration = models.CharField(max_length=64)
+    category = models.CharField(max_length=100)  
+    thumbnail = models.CharField(max_length=100)  
+    

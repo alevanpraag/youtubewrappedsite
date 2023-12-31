@@ -3,41 +3,28 @@ import CreateWrapPage from "./CreateWrapPage";
 import MyWrapPage from "./MyWrapPage";
 import LoadingPage from "./LoadingPage";
 import TestPage from "./TestPage";
-import { Grid, Button, Typography, withStyles } from "@material-ui/core";
+import { Grid, Button} from "@material-ui/core";
 
 import { 
     BrowserRouter as Router, 
     Routes, 
     Route,
     Link, 
-    Redirect,
 } from "react-router-dom"
 
-function renderHomePage(){
-    const BlueButton = withStyles({
-        root: {
-            background: "#669bbc",
-            color: "#fdf0d5"
-        }
-      })(Button);    
-
-    const RedTextTypography = withStyles({
-        root: {
-          color: "#1d3557"
-        }
-      })(Typography);
+function renderHomePage(){  
 
     return (
-        <Grid container spacing={1}>
+        <Grid container spacing={4}>
         <Grid item xs={12} align="center">
-        <RedTextTypography component="h1" variant="h1">
-            YouTube Rewind
-          </RedTextTypography>
+        <h3>2023</h3>
+        <h1>YouTube</h1>
+        <h3>rewind</h3>
         </Grid>
         <Grid item xs={12} align="center">
-        <BlueButton variant="contained" to="/create" component={Link}>
+        <Button variant="contained" to="/create" component={Link}>
             Begin
-          </BlueButton>
+          </Button>
         </Grid>           
       </Grid>);
   }
