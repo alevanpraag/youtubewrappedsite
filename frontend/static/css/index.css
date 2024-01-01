@@ -177,3 +177,30 @@ h1 {
     }
   }
   
+  .backbutton {
+    max-width: 80%;
+    font-size: 1.25rem;
+    color: #EAF0F6;
+    background-color: #003049;    
+    border-radius: 10px;
+    /* 20px */
+    font-weight: 100;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.625rem 1.25rem;
+    /* 10px 20px */
+}
+
+.backbutton:focus,
+.backbutton.has-focus {
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.backbutton:hover {
+    background-color: #780000;
+    color: #EAF0F6;
+}

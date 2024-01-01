@@ -6,13 +6,13 @@ class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
         fields = ('title', 'channel', 'duration', 'category', 'thumbnail')
-        
+
 class WrappedSerializer(serializers.ModelSerializer):
     file = FileField()
     videos = VideoSerializer(many=True, read_only=True)
     class Meta:
         model = Wrapped
-        fields = ('code','host','name','file','created_at','count', 'videos')
+        fields = ('code','host','name','file','created_at','count', 'videos', 'music_count')
 
 class CreateWrapSerializer(serializers.ModelSerializer):
     file = FileField()

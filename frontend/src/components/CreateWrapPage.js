@@ -28,6 +28,9 @@ export default function CreateWrapPage(props) {
     const code = "" + data.code
     navigate('/loading/'+code)
   }
+  function handleBackPressed() {
+    navigate('/')
+  }  
 
   function handleUploadPressed() {
     let form_data = new FormData();
@@ -81,9 +84,11 @@ export default function CreateWrapPage(props) {
         </div>
         </Grid>
         <Grid item xs={12} align="center">
-          <Button color="secondary" variant="contained" to="/" component={Link}>
-            BACK
-          </Button>
+        <div
+          className="backbutton"
+          onClick={handleBackPressed}
+        > Back
+        </div>
         </Grid>
       </Grid>
     );

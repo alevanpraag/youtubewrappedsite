@@ -34,7 +34,9 @@ class CreateWrapView(APIView):
                     wrap = queryset[0] 
                     wrap.name = name   
                     wrap.file = file
-                    wrap.save(update_fields=['name', 'file'])
+                    wrap.count = 0
+                    Video.objects.filter(wrap=wrap).delete()
+                    wrap.save(update_fields=['name', 'file', 'count'])
                     return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
                 else:
                     wrap = Wrapped(host=host, name=name,
@@ -80,23 +82,26 @@ class ProcessWrap(APIView):
             
     def get_music_only(self,key, json_file,wrap):    
         music_list = []
+        watch_list = []
         video_list = self.get_ids(json_file)
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
             for title, cat, chnl, thmnl, dur in self.get_data(key, "IE",  *video_sublst):
-                if cat == "Music":
-                    video = Video(wrap = wrap, title = title, channel = chnl, duration = dur,
+                video = Video(wrap = wrap, title = title, channel = chnl, duration = dur,
                                     category = cat, thumbnail = thmnl)
-                    video.save()
+                video.save()
+                watch_list.append(video)
+                if cat == 'Music':
                     music_list.append(video)
-        return music_list  
+        return watch_list, music_list  
 
     def history_count(self,json_file,wrap):
         with json_file.file.open('r') as f:
-            my_music_list = self.get_music_only(self.my_key,f,wrap)
-            watch_count = len(my_music_list)
-            return watch_count
-        return 0
+            my_watch_list, my_music_list = self.get_music_only(self.my_key,f,wrap)
+            watch_count = len(my_watch_list)
+            music_count = len(my_music_list)
+            return watch_count, music_count
+        return 0, 0
 
     def get(self, request, format=None):
         code = request.GET.get(self.lookup_url_kwarg)
@@ -104,8 +109,9 @@ class ProcessWrap(APIView):
             queryset = Wrapped.objects.filter(code=code)
             if len(queryset) > 0:
                 wrap = queryset[0]   
-                wrap.count = self.history_count(wrap.file,wrap)
-                wrap.save(update_fields=['count'])
+                if wrap.count == 0:
+                    wrap.count, wrap.music_count= self.history_count(wrap.file,wrap)
+                    wrap.save(update_fields=['count','music_count'])
                 return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -123,3 +129,33 @@ class GetWrap(APIView):
                 return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
+
+class GetFirstVideo(APIView):
+    serializer_class = VideoSerializer
+    lookup_url_kwarg = 'code'
+
+    def first_music_video(self,wrap):
+        last_ind = wrap.count
+        first_vid = wrap.videos.all()[last_ind-1]
+        for vid in wrap.videos.all():
+            if vid.category == 'Music':
+                first_vid = vid
+        return first_vid
+
+    def get_hd_pic(self,video):
+        if video.thumbnail[-12:] == "/default.jpg":
+            new_url = video.thumbnail[:-11] + "maxresdefault.jpg"
+            video.thumbnail = new_url
+            video.save(update_fields=['thumbnail'])
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0:
+                wrap = queryset[0]   
+                video = self.first_music_video(wrap)
+                self.get_hd_pic(video)
+                return Response(VideoSerializer(video).data, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)        
