@@ -14,14 +14,13 @@ def generate_unique_code():
     return code
 
 class Wrapped(models.Model):
-    code = models.CharField(
-        max_length=8, default=generate_unique_code, unique=True)    
+    code = models.CharField(max_length=8, default=generate_unique_code, unique=True)    
     host = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=64)
     file = models.FileField(upload_to="watch_history/jsons/")
     created_at = models.DateTimeField(auto_now_add=True) 
-    count = models.IntegerField(null=False, default=0)
-    music_count = models.IntegerField(null=False, default=0)
+    count = models.IntegerField(null=False, default=0) 
+    music_count = models.IntegerField(null=False, default=0)      
 
 class Video(models.Model):
     wrap = models.ForeignKey('Wrapped', related_name='videos', on_delete=models.CASCADE)   
@@ -30,4 +29,12 @@ class Video(models.Model):
     duration = models.CharField(max_length=64)
     category = models.CharField(max_length=100)  
     thumbnail = models.CharField(max_length=100)  
+
+class Analysis(models.Model):
+    first_watch = models.CharField(max_length=100) 
+    first_music = models.CharField(max_length=100) 
+    most_watch = models.CharField(max_length=100) 
+    top_three = models.CharField(max_length=100) 
+    
+     
     

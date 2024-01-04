@@ -7,5 +7,6 @@ urlpatterns = [
     path('mywrap/<str:code>', index), 
     path('mywrap2/<str:code>', index),         
     path('loading/<str:code>', index),
+    path('help', index),
     path('test', index)
 ]

@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics, status
-from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer
+from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer, AnalysisSerializer
 from .models import Wrapped, Video
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -12,9 +12,24 @@ import requests
 import json
 import csv
 
-class WrappedView(generics.ListAPIView):
+class AllWrappedView(generics.ListAPIView):
     queryset = Wrapped.objects.all()
     serializer_class = WrappedSerializer
+
+class WrappedView(APIView):
+    serializer_class = WrappedSerializer
+    lookup_url_kwarg = 'code'
+
+    def get(self, request, format=None):
+        #lookup wrap by unique code
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0:
+                wrap = queryset[0]   
+                return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateWrapView(APIView):
     parser_classes = (MultiPartParser, FormParser)
@@ -30,22 +45,26 @@ class CreateWrapView(APIView):
             queryset = Wrapped.objects.filter(host=host)
             with open(request.data.get('file').temporary_file_path(),'r') as f:
                 file = File(f, name=request.data.get('file').name)
+                #if same user requests a new wrap, delete old info
                 if queryset.exists():  
                     wrap = queryset[0] 
                     wrap.name = name   
                     wrap.file = file
                     wrap.count = 0
+                    wrap.music_count = 0
+                    #Anaylsis.objects.filter(wrap=wrap).delete()
+                    self.request.session['code'] = wrap.code
                     Video.objects.filter(wrap=wrap).delete()
-                    wrap.save(update_fields=['name', 'file', 'count'])
+                    wrap.save(update_fields=['name', 'file', 'count', 'music_count'])
                     return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
                 else:
-                    wrap = Wrapped(host=host, name=name,
-                                file=file)
+                    wrap = Wrapped(host=host, name=name,file=file)
                     wrap.save()
+                    self.request.session['code'] = wrap.code
                     return Response(WrappedSerializer(wrap).data, status=status.HTTP_201_CREATED)                
         else:
             return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
-        
+                
 class ProcessWrap(APIView):
     serializer_class = WrappedSerializer
     vid_serializer = VideoSerializer
@@ -103,8 +122,8 @@ class ProcessWrap(APIView):
             return watch_count, music_count
         return 0, 0
 
-    def get(self, request, format=None):
-        code = request.GET.get(self.lookup_url_kwarg)
+    def post(self, request, format=None):
+        code = request.data.get(self.lookup_url_kwarg)
         if code != None:
             queryset = Wrapped.objects.filter(code=code)
             if len(queryset) > 0:
@@ -116,31 +135,9 @@ class ProcessWrap(APIView):
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
 
-class GetWrap(APIView):
-    serializer_class = WrappedSerializer
-    lookup_url_kwarg = 'code'
-
-    def get(self, request, format=None):
-        code = request.GET.get(self.lookup_url_kwarg)
-        if code != None:
-            queryset = Wrapped.objects.filter(code=code)
-            if len(queryset) > 0:
-                wrap = queryset[0]   
-                return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
-            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
-
 class GetFirstVideo(APIView):
     serializer_class = VideoSerializer
     lookup_url_kwarg = 'code'
-
-    def first_music_video(self,wrap):
-        last_ind = wrap.count
-        first_vid = wrap.videos.all()[last_ind-1]
-        for vid in wrap.videos.all():
-            if vid.category == 'Music':
-                first_vid = vid
-        return first_vid
 
     def get_hd_pic(self,video):
         if video.thumbnail[-12:] == "/default.jpg":
@@ -148,14 +145,22 @@ class GetFirstVideo(APIView):
             video.thumbnail = new_url
             video.save(update_fields=['thumbnail'])
 
+    def get_first(self,wrap):
+        first = None
+        for vid in wrap.videos.all():
+            if vid.category == 'Music':
+                first = vid
+        return first
+
     def get(self, request, format=None):
         code = request.GET.get(self.lookup_url_kwarg)
         if code != None:
             queryset = Wrapped.objects.filter(code=code)
             if len(queryset) > 0:
                 wrap = queryset[0]   
-                video = self.first_music_video(wrap)
-                self.get_hd_pic(video)
+                video = self.get_first(wrap)
+                self.get_hd_pic(video)              
                 return Response(VideoSerializer(video).data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)        
+        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST) 
+

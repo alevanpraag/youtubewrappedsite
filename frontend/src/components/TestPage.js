@@ -1,22 +1,26 @@
-import React, { useState } from "react";
-import { Grid, Typography, withStyles, Button} from "@material-ui/core";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from 'react-router-dom';
+import { Grid, Button, Typography, withStyles } from "@material-ui/core";
+import { useNavigate } from 'react-router-dom';
 
 export default function TestPage(props){
 
-  return (
-    <Grid container spacing={1}>
-      <Grid item xs={12} align="center">
-      <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+    return (
+      <Grid container spacing={1}>
+        <Grid item xs={12} align="center">
+          <h2>
+            Creating Your 2023
+          </h2>
+          <h3>REWIND</h3>
+        </Grid>  
+        <Grid item xs={12} align="center">
+        <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+        <div className="rectangle">       
+        </div>
+        
+        </Grid>                 
       </Grid>
-      <Grid item xs={12} align="center">
-      <div className="rectangle">
-      <img src="https://i.ytimg.com/vi/Bp3Ytv-v918/maxresdefault.jpg" alt="alternatetext" width="480" height="270"></img>
-      </div>
-      </Grid>     
-      <Grid item xs={12} align="center">
-        <div className="createbutton">CREATE</div>   
-      </Grid>                
-    </Grid>
-    )
+      )
 }
+
 

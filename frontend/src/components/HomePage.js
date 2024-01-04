@@ -1,52 +1,35 @@
 import React, { Component } from "react";
-import CreateWrapPage from "./CreateWrapPage";
-import MyWrapPage from "./MyWrapPage";
-import SecondWrapPage from "./SecondWrapPage";
-import LoadingPage from "./LoadingPage";
-import TestPage from "./TestPage";
 import { Grid, Button, withStyles} from "@material-ui/core";
+import { useNavigate } from 'react-router-dom';
+import IMAGES from '../index.js';
 
-import { 
-    BrowserRouter as Router, 
-    Routes, 
-    Route,
-    Link, 
-} from "react-router-dom"
+export default function HomePage(props) {   
+    const navigate = useNavigate(); 
 
-function renderHomePage(){  
-    const RedButton = withStyles({
-        root: {
-            backgroundColor: "#c1121f",
-            color: "#EAF0F6"
-        }
-      })(Button);
+    function handleBeginPressed() {
+        navigate('/create')
+      }  
+
+    function handleHelpPressed() {
+        navigate('/help')
+      }        
 
     return (
         <Grid container spacing={4}>
         <Grid item xs={12} align="center">
-        <h3>2023</h3>
         <h1>YouTube</h1>
-        <h3>rewind</h3>
+        <h3>REWIND</h3>
         </Grid>
         <Grid item xs={12} align="center">
-        <RedButton variant="contained" to="/create" component={Link}>
-            Begin
-          </RedButton>
-        </Grid>           
-      </Grid>);
-  }
-
-export default function HomePage(props) {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/" element={renderHomePage()}/>
-                <Route path="/create" element={<CreateWrapPage/>}/>
-                <Route path="/loading/:code" element={<LoadingPage/>}/>
-                <Route path="/mywrap/:code" element={<MyWrapPage/>}/>
-                <Route path="/mywrap2/:code" element={<SecondWrapPage/>}/>
-                <Route path="/test" element={<TestPage/>}/>
-            </Routes>
-        </Router>
+            <div className="createbutton" onClick={handleBeginPressed}> 
+            <img src={IMAGES.play} width="59" height="53" />
+            <h3 style={{fontSize : '1.5rem', fontWeight : '100'}}>START</h3>
+            </div>
+        </Grid>  
+        <Grid item xs={12} align="center">
+          <div className="createbutton" onClick={handleHelpPressed}> Help </div>    
+        </Grid>                   
+      </Grid> 
+      
     );
 }

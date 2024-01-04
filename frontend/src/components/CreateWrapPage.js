@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState } from "react";
 import Button from "@material-ui/core/Button";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
@@ -10,7 +10,7 @@ import { withStyles } from "@material-ui/core";
 
 
 export default function CreateWrapPage(props) {
-  const [name, setName] = useState("");
+  const [name, setName] = useState(null);
   const [file, setFile] = useState(null);
   const [filename, setFilename] = useState(<span>Choose a File&hellip;</span>);  
   const navigate = useNavigate();
@@ -25,8 +25,7 @@ export default function CreateWrapPage(props) {
   }
 
   function goToLoad(data) {
-    const code = "" + data.code
-    navigate('/loading/'+code)
+    navigate('/loading/'+data.code)
   }
   function handleBackPressed() {
     navigate('/')
@@ -45,50 +44,42 @@ export default function CreateWrapPage(props) {
       .then((response) => response.json())
       .then((data) => goToLoad(data));
   }
-  const MainText = withStyles({
-    root: {
-        color: "#1d3557"
+
+  function renderCreateButton(){
+    if ((file == null) || (!name)){
+      return null;
     }
-  })(Typography); 
- 
+    return (
+      <Grid item xs={12} align="center">
+        <div className="createbutton" onClick={handleUploadPressed}> Create</div>
+      </Grid>);    
+  }
+
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
-          <MainText component="h3" variant="h3">
-            Create A Rewind
-          </MainText>
+          <h2>Create your</h2>
+          <h3>REWIND</h3>
         </Grid>
         <Grid item xs={12} align="center">
-        <FormControl>
-            <TextField
-              required={true}
-              type="text"
-              onChange={handleNameChange}
-              inputProps={{
-                min: 1,
-                style: { textAlign: "center" },
-              }}
-            />
-              <FormHelperText>Name</FormHelperText>
+          <FormControl>
+              <input
+                required={true}
+                type="text"
+                onChange={handleNameChange}
+                variant="outlined"
+                placeholder="Enter Your Name"
+                className="namebutton"
+              />
           </FormControl>
         </Grid>
         <Grid item xs={12} align="center">
-        <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json"/>
-		    <label htmlFor="file"> {filename}</label>
+          <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json"/>
+		      <label htmlFor="file"> {filename}</label>
         </Grid>        
+          {renderCreateButton()}
         <Grid item xs={12} align="center">
-            <div
-          className="createbutton"
-          onClick={handleUploadPressed}
-        > CREATE
-        </div>
-        </Grid>
-        <Grid item xs={12} align="center">
-        <div
-          className="backbutton"
-          onClick={handleBackPressed}
-        > Back
-        </div>
+          <div className="createbutton" onClick={handleBackPressed}> Back</div>
         </Grid>
       </Grid>
     );
