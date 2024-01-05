@@ -23,18 +23,11 @@ class Wrapped(models.Model):
     music_count = models.IntegerField(null=False, default=0)      
 
 class Video(models.Model):
-    wrap = models.ForeignKey('Wrapped', related_name='videos', on_delete=models.CASCADE)   
+    wrap = models.ForeignKey('Wrapped', related_name='videos', on_delete=models.CASCADE)  
+    video_id = models.CharField(max_length=100)    
     title = models.CharField(max_length=100)    
     channel = models.CharField(max_length=100)  
     duration = models.CharField(max_length=64)
     category = models.CharField(max_length=100)  
     thumbnail = models.CharField(max_length=100)  
-
-class Analysis(models.Model):
-    first_watch = models.CharField(max_length=100) 
-    first_music = models.CharField(max_length=100) 
-    most_watch = models.CharField(max_length=100) 
-    top_three = models.CharField(max_length=100) 
-    
-     
-    
+    month = models.CharField(max_length=2, default="01")  

@@ -1,16 +1,11 @@
 from rest_framework import serializers
 from rest_framework.serializers import FileField
-from .models import Wrapped, Video, Analysis
-
-class AnalysisSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Video
-        fields = ('first_video', 'first_music', 'most_watched')
+from .models import Wrapped, Video
 
 class VideoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Video
-        fields = ('title', 'channel', 'duration', 'category', 'thumbnail')
+        fields = ('video_id', 'title', 'channel', 'duration', 'category', 'thumbnail', 'month')
 
 class WrappedSerializer(serializers.ModelSerializer):
     videos = VideoSerializer(many=True, read_only=True)

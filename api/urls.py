@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import AllWrappedView, CreateWrapView, WrappedView, ProcessWrap, GetFirstVideo
+from .views import AllWrappedView, CreateWrapView, WrappedView, ProcessWrap, GetFirstVideo, GetMonths
 
 urlpatterns = [
     path('home',AllWrappedView.as_view()),
@@ -7,4 +7,5 @@ urlpatterns = [
     path('get-wrap', WrappedView.as_view()), 
     path('process-wrap', ProcessWrap.as_view()), 
     path('get-first', GetFirstVideo.as_view()), 
+    path('get-month', GetMonths.as_view()),     
 ]

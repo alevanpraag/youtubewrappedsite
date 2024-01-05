@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from rest_framework import generics, status
-from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer, AnalysisSerializer
+from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer
 from .models import Wrapped, Video
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +11,8 @@ from django.core.files.base import File
 import requests
 import json
 import csv
+from django.http import JsonResponse
+
 
 class AllWrappedView(generics.ListAPIView):
     queryset = Wrapped.objects.all()
@@ -52,7 +54,6 @@ class CreateWrapView(APIView):
                     wrap.file = file
                     wrap.count = 0
                     wrap.music_count = 0
-                    #Anaylsis.objects.filter(wrap=wrap).delete()
                     self.request.session['code'] = wrap.code
                     Video.objects.filter(wrap=wrap).delete()
                     wrap.save(update_fields=['name', 'file', 'count', 'music_count'])
@@ -81,33 +82,46 @@ class ProcessWrap(APIView):
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
             try:
-                yield item["snippet"]["title"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], item['snippet']['thumbnails']['default']['url'], item['contentDetails']['duration']
+                yield item["id"], item["snippet"]["title"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], item['snippet']['thumbnails']['default']['url'], item['contentDetails']['duration']
             except:
                 continue
+
+    def is_ad(self,video):
+        try:
+            if "From Google Ads" in video["details"][0]["name"]:
+                return True
+            return False
+        except:
+            return False
             
     def get_ids(self,f):    
         video_list = []
+        month_dict = {}
         watch_history = json.load(f)
         for video in watch_history:
-            if "time" in video:
-                video_year = (video['time'])[:4]
-                if video_year != '2023':
-                    break
-                else:
-                    if "titleUrl" in video:
-                        video_id = str((video['titleUrl'])[32:])
-                        video_list.append(video_id)
-        return video_list
+            if not self.is_ad(video):
+                if "time" in video:
+                    video_year = (video['time'])[:4]
+                    video_month = (video['time'])[5:7]
+                    if video_year != '2023':
+                        break
+                    else:
+                        if "titleUrl" in video:
+                            video_id = str((video['titleUrl'])[32:])
+                            video_list.append(video_id)
+                            month_dict[video_id] = video_month
+        return video_list, month_dict
             
     def get_music_only(self,key, json_file,wrap):    
         music_list = []
         watch_list = []
-        video_list = self.get_ids(json_file)
+        video_list, month_dict = self.get_ids(json_file)
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
-            for title, cat, chnl, thmnl, dur in self.get_data(key, "IE",  *video_sublst):
-                video = Video(wrap = wrap, title = title, channel = chnl, duration = dur,
-                                    category = cat, thumbnail = thmnl)
+            for video_id, title, cat, chnl, thmnl, dur in self.get_data(key, "IE",  *video_sublst):
+                month = month_dict[video_id]
+                video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = dur,
+                                    category = cat, thumbnail = thmnl, month= month)
                 video.save()
                 watch_list.append(video)
                 if cat == 'Music':
@@ -164,3 +178,33 @@ class GetFirstVideo(APIView):
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST) 
 
+class GetMonths(APIView):
+    lookup_url_kwarg = 'code'
+
+    def stringify_month(self, month):
+        str_month = str(month)
+        if month < 10:
+            str_month = "0" + str_month
+        return str_month
+
+    def month_counts(self,videos):
+        months = {}
+        for i in range(12):
+            month = self.stringify_month(i+1)
+            month_videos = videos.filter(month=month)
+            if len(month_videos) > 0:
+                count = month_videos.count()
+                months[month] = count  
+        return months      
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0: 
+                wrap = queryset[0] 
+                videos = Video.objects.filter(wrap=wrap)
+                months = self.month_counts(videos)
+                return JsonResponse(months, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST) 
