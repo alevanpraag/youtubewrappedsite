@@ -11,7 +11,7 @@ class WrappedSerializer(serializers.ModelSerializer):
     videos = VideoSerializer(many=True, read_only=True)
     class Meta:
         model = Wrapped
-        fields = ('code','host','name','file','created_at','count', 'videos', 'music_count')
+        fields = ('code','host','name','file','created_at','count', 'videos')
 
 class CreateWrapSerializer(serializers.ModelSerializer):
     class Meta:

@@ -13,7 +13,7 @@ export default function CreateWrapPage(props) {
   const [name, setName] = useState(null);
   const [file, setFile] = useState(null);
   const [filename, setFilename] = useState(<span>Choose a File&hellip;</span>);  
-  const navigate = useNavigate();
+  const navigate = useNavigate(); 
 
   function handleNameChange(e) {
     setName(e.target.value);
@@ -54,7 +54,6 @@ export default function CreateWrapPage(props) {
         <div className="createbutton" onClick={handleUploadPressed}> Create</div>
       </Grid>);    
   }
-
     return (
       <Grid container spacing={1}>
         <Grid item xs={12} align="center">
@@ -80,7 +79,7 @@ export default function CreateWrapPage(props) {
           {renderCreateButton()}
         <Grid item xs={12} align="center">
           <div className="createbutton" onClick={handleBackPressed}> Back</div>
-        </Grid>
+        </Grid> 
       </Grid>
     );
 }

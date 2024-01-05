@@ -112,9 +112,7 @@ class ProcessWrap(APIView):
                             month_dict[video_id] = video_month
         return video_list, month_dict
             
-    def get_music_only(self,key, json_file,wrap):    
-        music_list = []
-        watch_list = []
+    def create_videos(self,key, json_file,wrap):    
         video_list, month_dict = self.get_ids(json_file)
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
@@ -122,19 +120,15 @@ class ProcessWrap(APIView):
                 month = month_dict[video_id]
                 video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = dur,
                                     category = cat, thumbnail = thmnl, month= month)
-                video.save()
-                watch_list.append(video)
-                if cat == 'Music':
-                    music_list.append(video)
-        return watch_list, music_list  
+                video.save() 
 
     def history_count(self,json_file,wrap):
         with json_file.file.open('r') as f:
-            my_watch_list, my_music_list = self.get_music_only(self.my_key,f,wrap)
-            watch_count = len(my_watch_list)
-            music_count = len(my_music_list)
-            return watch_count, music_count
-        return 0, 0
+            self.create_videos(self.my_key,f,wrap)
+            videos = Video.objects.filter(wrap=wrap)
+            watch_count = videos.count()
+            return watch_count
+        return 0
 
     def post(self, request, format=None):
         code = request.data.get(self.lookup_url_kwarg)
@@ -143,8 +137,8 @@ class ProcessWrap(APIView):
             if len(queryset) > 0:
                 wrap = queryset[0]   
                 if wrap.count == 0:
-                    wrap.count, wrap.music_count= self.history_count(wrap.file,wrap)
-                    wrap.save(update_fields=['count','music_count'])
+                    wrap.count = self.history_count(wrap.file,wrap)
+                    wrap.save(update_fields=['count'])
                 return Response(WrappedSerializer(wrap).data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
@@ -195,6 +189,8 @@ class GetMonths(APIView):
             if len(month_videos) > 0:
                 count = month_videos.count()
                 months[month] = count  
+            else:
+                months[month] = 0  
         return months      
 
     def get(self, request, format=None):
@@ -208,3 +204,33 @@ class GetMonths(APIView):
                 return JsonResponse(months, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST) 
+
+class GetCategories(APIView):
+    lookup_url_kwarg = 'code'
+
+    def cat_counts(self,videos):
+        categories = {}      
+        for video in videos:
+            categories[video.category] = categories.get(video.category, 0) + 1
+        return categories
+
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0: 
+                wrap = queryset[0] 
+                videos = Video.objects.filter(wrap=wrap)
+                categories = self.cat_counts(videos)
+                return JsonResponse(categories, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST)  
+
+class CheckUser(APIView):
+        
+    def get(self, request, format=None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        data = {'code': self.request.session.get('code')}
+        return JsonResponse(data, status=status.HTTP_200_OK)              

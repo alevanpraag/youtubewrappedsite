@@ -19,8 +19,7 @@ class Wrapped(models.Model):
     name = models.CharField(max_length=64)
     file = models.FileField(upload_to="watch_history/jsons/")
     created_at = models.DateTimeField(auto_now_add=True) 
-    count = models.IntegerField(null=False, default=0) 
-    music_count = models.IntegerField(null=False, default=0)      
+    count = models.IntegerField(null=False, default=0)   
 
 class Video(models.Model):
     wrap = models.ForeignKey('Wrapped', related_name='videos', on_delete=models.CASCADE)  
