@@ -71,7 +71,9 @@ var colors = new Array(
     imgSix: require('../static/images/step4-1.png'),
     imgSeven: require('../static/images/step5-1.png'),
     imgEight: require('../static/images/step6-1.png'),
-    play: require('../static/images/play.svg')           
+    play: require('../static/images/play.svg'),
+    rewind: require('../static/images/rewind.svg'),
+    forward: require('../static/images/forward.svg')           
   }
 
   export default IMAGES;

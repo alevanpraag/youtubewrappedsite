@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Grid, Button, Typography, IconButton } from "@material-ui/core";
+import IMAGES from '../index.js';
 
 export default function SecondWrapPage(props){
     let {code} = useParams();
@@ -37,12 +38,16 @@ export default function SecondWrapPage(props){
                     <img src={url} alt="firstvideo" width="480" height="270"></img>
                 </div>
             </Grid>   
-            <Grid item xs={12} align="center"></Grid>
-                <div className="createbutton" onClick={handleNext}> Next</div>
-            <Grid/>
-            <Grid item xs={12} align="center"></Grid>
-                <div className="createbutton" onClick={handleBack}> Back</div>
-            <Grid/>               
+            <Grid item xs={6} align="left">
+                <div className="createbutton" onClick={handleBack}>
+                <img src={IMAGES.rewind} width="49" height="26" />
+                </div>  
+            </Grid>    
+            <Grid item xs={6} align="right">
+                <div className="createbutton" onClick={handleNext}>
+                <img src={IMAGES.forward} width="49" height="26" />
+                </div>
+            </Grid>               
         </Grid>
         )
 }

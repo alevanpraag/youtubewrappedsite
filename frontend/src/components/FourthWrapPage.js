@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { Grid, Button, Typography, IconButton } from "@material-ui/core";
 import { render } from "react-dom";
 import Plotly from 'plotly.js-dist-min';
+import IMAGES from '../index.js';
 
 export default function FourthWrapPage(props){
     let {code} = useParams();  
@@ -71,13 +72,11 @@ export default function FourthWrapPage(props){
       <Grid item xs={12} align="center">
         <div id="myDiv"></div>
       </Grid>              
-        <Grid item xs={12} align="center"></Grid>
-      <div
-          className="createbutton"
-          onClick={handleBack}
-        > back
-        </div>
-        <Grid/>               
+        <Grid item xs={6} align="left">
+            <div className="createbutton" onClick={handleBack}>
+                <img src={IMAGES.rewind} width="49" height="26" />
+            </div>  
+        </Grid>                    
     </Grid>
     )
 }

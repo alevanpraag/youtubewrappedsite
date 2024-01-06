@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Grid, Button, Typography, IconButton } from "@material-ui/core";
+import IMAGES from '../index.js';
 
 export default function MyWrapPage(props){
   const [name, setName] = useState("");
@@ -29,19 +30,23 @@ export default function MyWrapPage(props){
 }    
 
   return (
-    <Grid container spacing={1}>
+    <Grid container spacing={1} >
       <Grid item xs={12} align="center">
         <h3>{name}'s 2023</h3>
       </Grid>
       <Grid item xs={12} align="center">
         <h6>{countInfo()}</h6>
       </Grid>          
-      <Grid item xs={12} align="center">
-        <div className="createbutton" onClick={handleNext}> Next</div>
-      </Grid>
-      <Grid item xs={12} align="center">
-        <div className="createbutton" onClick={handleBack}> Back</div>
-      </Grid>         
+      <Grid item xs={6} align="left">
+        <div className="createbutton" onClick={handleBack}>
+          <img src={IMAGES.rewind} width="49" height="26" />
+        </div>  
+      </Grid>    
+      <Grid item xs={6} align="right">
+        <div className="createbutton" onClick={handleNext}>
+          <img src={IMAGES.forward} width="49" height="26" />
+        </div>
+      </Grid>        
     </Grid>
     )
 }

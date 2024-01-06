@@ -19,6 +19,17 @@ body {
     background: #023e8a 
 }
 
+.rewind {
+  transform: scale(-1, 1);
+  transform-origin: center;
+  position: relative;
+}
+
+.over {
+  position: relative;
+  right: 10px;
+}
+
 h3 {
     font-family: 'Rubik Glitch';
     font-size: 5rem;

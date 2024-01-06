@@ -227,6 +227,35 @@ class GetCategories(APIView):
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST)  
 
+class OnRepeat(APIView):
+    serializer_class = VideoSerializer
+    lookup_url_kwarg = 'code'
+
+    def get_hd_pic(self,video):
+        if video.thumbnail[-12:] == "/default.jpg":
+            new_url = video.thumbnail[:-11] + "maxresdefault.jpg"
+            video.thumbnail = new_url
+            video.save(update_fields=['thumbnail'])
+
+    def get_most(self,wrap):
+        first = None
+        for vid in wrap.videos.all():
+            if vid.category == 'Music':
+                first = vid
+        return first
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0:
+                wrap = queryset[0]   
+                video = self.get_most(wrap)
+                self.get_hd_pic(video)              
+                return Response(VideoSerializer(video).data, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST) 
+
 class CheckUser(APIView):
         
     def get(self, request, format=None):
