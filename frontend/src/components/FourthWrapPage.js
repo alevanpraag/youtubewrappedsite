@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
-import { Grid, Button, Typography, IconButton } from "@material-ui/core";
-import { render } from "react-dom";
+import Grid from '@mui/material/Grid';
 import Plotly from 'plotly.js-dist-min';
 import IMAGES from '../index.js';
 

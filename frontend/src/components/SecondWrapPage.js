@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
-import { Grid, Button, Typography, IconButton } from "@material-ui/core";
+import Grid from '@mui/material/Grid';
 import IMAGES from '../index.js';
 
 export default function SecondWrapPage(props){
@@ -28,10 +28,10 @@ export default function SecondWrapPage(props){
     return (
         <Grid container spacing={1}>
             <Grid item xs={12} align="center">
-                <Typography variant="h4"> Your first video watched:</Typography>      
+                <h4> Your first video watched:</h4>      
             </Grid>   
             <Grid item xs={12} align="center">
-                <Typography variant="h6">{name}</Typography> 
+                <h6>{name}</h6> 
             </Grid>        
             <Grid item xs={12} align="center">
                 <div className="rectangle">        

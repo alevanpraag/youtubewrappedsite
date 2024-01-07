@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from 'react-router-dom';
-import { Grid, Button, Typography, withStyles } from "@material-ui/core";
+import Grid from '@mui/material/Grid';
 import { useNavigate } from 'react-router-dom';
 import IMAGES from '../index.js';
 

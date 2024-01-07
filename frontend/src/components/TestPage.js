@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from 'react-router-dom';
-import { Grid, Button, Typography, withStyles } from "@material-ui/core";
-import { useNavigate } from 'react-router-dom';
+import Grid from '@mui/material/Grid';
 import IMAGES from '../index.js';
 
 export default function TestPage(props){

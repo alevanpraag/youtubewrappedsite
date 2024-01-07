@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
-import { Grid, Button, Typography, IconButton } from "@material-ui/core";
+import Grid from '@mui/material/Grid';
 import IMAGES from '../index.js';
 
 export default function MyWrapPage(props){
