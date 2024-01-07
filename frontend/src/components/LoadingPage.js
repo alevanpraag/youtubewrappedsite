@@ -34,7 +34,7 @@ export default function LoadingPage(props){
   });
 
     return (
-      <Grid container spacing={1}>
+      <Grid className="center" container spacing={1}>
         <Grid item xs={12} align="center">
           <h2>
             Creating Your 2023
@@ -43,7 +43,7 @@ export default function LoadingPage(props){
         </Grid>  
         <Grid item xs={12} align="center">
         <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
-        </Grid>                 
+        </Grid>                   
       </Grid>
       )
 }

@@ -17,7 +17,7 @@ import HelpPage from "./HelpPage";
 
 export default function App(props) {
     return (
-         <div className="center">
+         <div>
           <Router>
               <Routes>
                   <Route path="/" element={<HomePage/>}/>
