@@ -5,16 +5,30 @@ import IMAGES from '../index.js';
 
 export default function SecondWrapPage(props){
     let {code} = useParams();
-    const [name, setName] = useState("");
-    const [url, setUrl] = useState("");
+    const [urlA, setUrlA] = useState("");
+    const [urlB, setUrlB] = useState("");
+    const [urlC, setUrlC] = useState("");
+    const [urlD, setUrlD] = useState("");
+    const [nameA, setNameA] = useState("");
+    const [nameB, setNameB] = useState("");
+    const [nameC, setNameC] = useState("");
+    const [nameD, setNameD] = useState("");  
+    const [choice, setChoice] = useState(false);
     const navigate = useNavigate();
     getWrapDetails();
 
     function getWrapDetails(){
         fetch('/api/get-first' + '?code=' + code)
         .then((response) => response.json()) 
-        .then((data) => {setUrl(data.thumbnail);
-                          setName(data.title)})        
+        .then((data) => {
+                            setUrlA(data.choiceAUrl);
+                            setUrlB(data.choiceBUrl);
+                            setUrlC(data.choiceCUrl);
+                            setUrlD(data.choiceDUrl);
+                            setNameA(data.choiceA);
+                            setNameB(data.choiceB);
+                            setNameC(data.choiceC);
+                            setNameD(data.choiceD);})        
     }
 
     function handleNext() {
@@ -28,21 +42,62 @@ export default function SecondWrapPage(props){
         navigate('/');
       }       
 
-    return (
-        <Container>         
-        <Grid className="center" container spacing={2}>
+    function handleChoiceMade(letter){
+        setChoice(true);
+    }
+
+    function renderfirstVideo(){
+        console.log(choice)
+        return (
+            <Grid className="center" container spacing={2}>
             <Grid item xs={12} align="center">
                 <h2> You started off the year with:</h2>      
-            </Grid>   
+            </Grid>         
             <Grid item xs={12} align="center">
-                <h6>{name}</h6> 
-            </Grid>        
-            <Grid item xs={12} align="center">
-                <div className="rectangle">        
-                    <img src={url} alt="firstvideo" width="480" height="270"></img>
+                <div className="rectangle" width="480" height="270">        
+                    <img src={urlA} alt="firstvideo" width="480" height="270"></img>
                 </div>
-            </Grid>                
-        </Grid>
+            </Grid>     
+            <Grid item xs={12} align="center">
+                <h6>{nameA}</h6> 
+            </Grid>                         
+        </Grid>            
+        );
+    }
+
+    function renderChoices(){
+        return (
+            <Grid className="center" container spacing={2}>
+            <Grid item xs={12} align="center">
+                <h2> Do you know the first video you watched this year?</h2>      
+            </Grid>         
+            <Grid item xs={6} align="center">
+                <div className="choice" onClick={() => handleChoiceMade("A")}>        
+                    <img src={urlA} alt="choice1" width="360" height="202"></img>
+                </div>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                <div className="choice" onClick={() => handleChoiceMade("B")}>        
+                    <img src={urlB} alt="choice2" width="360" height="202"></img>
+                </div>
+            </Grid>         
+            <Grid item xs={6} align="center">
+                <div className="choice" onClick={() => handleChoiceMade("C")}>        
+                    <img src={urlC} alt="choice3" width="360" height="202"></img>
+                </div>
+            </Grid>     
+            <Grid item xs={6} align="center" >
+                <div className="choice" onClick={() => handleChoiceMade("D")}>        
+                    <img src={urlD} alt="choice4" width="360" height="202"></img>
+                </div>
+            </Grid>                                               
+        </Grid>            
+        );
+    }    
+
+    return (
+        <Container>         
+            { choice ? renderfirstVideo() : renderChoices()} 
         <Grid className="footer" align="center" container spacing={2} >
     <Grid item xs={6} align="right">
         <div className="createbutton" onClick={handleBack}>

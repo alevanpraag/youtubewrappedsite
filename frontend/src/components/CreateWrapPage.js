@@ -8,6 +8,8 @@ import IMAGES from '../index.js';
 export default function CreateWrapPage(props) {
   const [name, setName] = useState(null);
   const [file, setFile] = useState(null);
+  const [code, setCode] = useState(null);
+  const [loading, setLoading] = useState(false);
   const [filename, setFilename] = useState(<span>Choose a File&hellip;</span>);  
   const navigate = useNavigate(); 
 
@@ -20,9 +22,6 @@ export default function CreateWrapPage(props) {
     setFilename(<span>{e.target.files[0].name}</span>);    
   }
 
-  function goToLoad(data) {
-    navigate('/loading/'+data.code)
-  }
   function handleHomePressed() {
     navigate('/')
   }  
@@ -30,7 +29,14 @@ export default function CreateWrapPage(props) {
     navigate('/help')
   }      
 
+  function goToWrap(){
+    if (code != null){
+      navigate('/mywrap/'+code);
+    }
+  }
+
   function handleUploadPressed() {
+    setLoading(true);
     let form_data = new FormData();
     form_data.append("file", file);
     form_data.append("name", name);    
@@ -41,24 +47,16 @@ export default function CreateWrapPage(props) {
     };
     fetch("/api/create-wrap", requestOptions)
       .then((response) => response.json())
-      .then((data) => goToLoad(data));
+      .then((data) => { setCode(data.code);});
   }
 
-  function renderCreateButton(){
-    if ((file == null) || (!name)){
-      return null;
-    }
+  function renderForm(){
     return (
-      <Grid item xs={12} align="center">
-        <div className="createbutton" onClick={handleUploadPressed}> Create</div>
-      </Grid>);    
-  }
-    return (
-      <Container>           
       <Grid className="center" container spacing={1}>
         <Grid item xs={12} align="center">
           <h2>Create your</h2>
           <img src={IMAGES.title} width="500" height="100" />
+          <p> <em style={{ fontSize: "1.5rem", color: "#94D2BD" }}> Give us a nickname and upload your YouTube watch history</em></p>
         </Grid>
         <Grid item xs={12} align="center">
           <FormControl>
@@ -75,9 +73,45 @@ export default function CreateWrapPage(props) {
         <Grid item xs={12} align="center">
           <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json"/>
 		      <label htmlFor="file"> {filename}</label>
-        </Grid>        
-          {renderCreateButton()}
-      </Grid>
+        </Grid>     
+        {renderCreateButton()} 
+        </Grid>     
+    );
+  }
+
+  function renderLoading(){
+    return (
+      <Grid className="center" container spacing={1}>
+        <Grid item xs={12} align="center">
+          <h2>
+            Creating Your 2023
+          </h2>
+          <img src={IMAGES.title} width="500" height="100" />
+        </Grid>  
+        <Grid item xs={12} align="center">
+        <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
+        </Grid>                   
+      </Grid>      
+    );
+  }
+
+  function renderCreateButton(){
+    if ((file == null) || (!name) || loading){
+      return null;
+    }
+    return (
+      <Grid item xs={12} align="center">
+        <div className="createbutton" onClick={handleUploadPressed}> Create</div>
+      </Grid>);    
+  }
+
+  useEffect(() => {
+    goToWrap(); 
+  });
+
+    return (
+      <Container>           
+      { loading ? renderLoading() : renderForm()} 
       <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">
           <div onClick={handleHomePressed}>

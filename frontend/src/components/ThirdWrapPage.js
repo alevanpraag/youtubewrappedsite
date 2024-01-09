@@ -16,9 +16,6 @@ export default function ThirdWrapPage(props){
       let arr = [];
         for (let step = 12; step > 0; step--) {
           let m = step.toString();
-          if (step < 10){
-            m = "0"+m;
-          }
           let count = json_data[m]
           arr.push(count);
         }
