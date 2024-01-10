@@ -15,6 +15,7 @@ from django.http import JsonResponse
 import re
 import os
 import datetime as dt
+import calendar
 
 
 class AllWrappedView(generics.ListAPIView):
@@ -186,14 +187,14 @@ class GetFirstVideo(APIView):
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST) 
 
-class GetMonths(APIView):
+class GetMonthsCats(APIView):
     lookup_url_kwarg = 'code'
 
-    def stringify_month(self, month):
-        str_month = str(month)
-        if month < 10:
-            str_month = "0" + str_month
-        return str_month
+    def cat_counts(self,videos):
+        categories = {}      
+        for video in videos:
+            categories[video.category] = categories.get(video.category, 0) + 1
+        return categories        
 
     def month_counts(self,videos):
         months = {}
@@ -204,7 +205,21 @@ class GetMonths(APIView):
                 months[str(i)] = count  
             else:
                 months[str(i)] = 0  
-        return months      
+        return months   
+
+    def get_most(self,videos):
+        months = self.month_counts(videos)
+        cats = self.cat_counts(videos)
+        top_cats = sorted(cats, key=cats.get, reverse=True)
+        top_months = sorted(months, key=months.get, reverse=True)
+        top = {}
+        if len(top_months)>0:
+            top["month"] = calendar.month_name[int(top_months[0])]
+            top["countM"] = months[top_months[0]]  
+        if len(top_cats)>0:
+            top["cat"] = top_cats[0]
+            top["countC"] = cats[top_cats[0]]              
+        return top           
 
     def get(self, request, format=None):
         code = request.GET.get(self.lookup_url_kwarg)
@@ -213,32 +228,10 @@ class GetMonths(APIView):
             if len(queryset) > 0: 
                 wrap = queryset[0] 
                 videos = Video.objects.filter(wrap=wrap)
-                months = self.month_counts(videos)
-                return JsonResponse(months, status=status.HTTP_200_OK)
+                top = self.get_most(videos)
+                return JsonResponse(top, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST) 
-
-class GetCategories(APIView):
-    lookup_url_kwarg = 'code'
-
-    def cat_counts(self,videos):
-        categories = {}      
-        for video in videos:
-            categories[video.category] = categories.get(video.category, 0) + 1
-        return categories
-
-
-    def get(self, request, format=None):
-        code = request.GET.get(self.lookup_url_kwarg)
-        if code != None:
-            queryset = Wrapped.objects.filter(code=code)
-            if len(queryset) > 0: 
-                wrap = queryset[0] 
-                videos = Video.objects.filter(wrap=wrap)
-                categories = self.cat_counts(videos)
-                return JsonResponse(categories, status=status.HTTP_200_OK)
-            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
-        return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST)  
 
 class OnRepeat(APIView):
     serializer_class = VideoSerializer
@@ -247,31 +240,37 @@ class OnRepeat(APIView):
     def get_counts(self,wrap):
         counts = {}
         for vid in wrap.videos.all():
-            counts[vid.video_id] = counts.get(video_id,0)+1
-        return get_counts
+            counts[vid.video_id] = counts.get(vid.video_id,0)+1
+        return counts
 
     def get_repeats(self,counts):
-        repeats = []
+        repeats = {}
         for key, value in counts.items():
             if value > 1:
-                repeats.append(key)
+                repeats[key] = value
         return repeats
 
-    def get_most(self,repeats):
-        top = repeats.sort()
+    def get_most(self,wrap):
+        counts = self.get_counts(wrap)
+        repeats = self.get_repeats(counts)
+        videos = Video.objects.filter(wrap=wrap)
+        top = sorted(repeats, key=repeats.get, reverse=True)
         top3 = {}
         if len(top)>0:
-            videoA = Videos.objects.filter(video_id=top[0])
+            videoA = videos.filter(video_id=top[0])[0]
             top3["nameA"] = videoA.title
             top3["urlA"] = videoA.thumbnail
+            top3["countA"] = repeats[top[0]]
         if len(top)>1:
-            videoB = Videos.objects.filter(video_id=top[1])
+            videoB = videos.filter(video_id=top[1])[0]
             top3["nameB"] = videoB.title
-            top3["urlB"] = videoB.thumbnail            
+            top3["urlB"] = videoB.thumbnail   
+            top3["countB"] = repeats[top[1]]         
         if len(top)>2:
-            videoC = Videos.objects.filter(video_id=top[2])
+            videoC = videos.filter(video_id=top[2])[0]
             top3["nameC"] = videoC.title
-            top3["urlC"] = videoC.thumbnail            
+            top3["urlC"] = videoC.thumbnail   
+            top3["countC"] = repeats[top[2]]         
         return top3
 
     def get(self, request, format=None):

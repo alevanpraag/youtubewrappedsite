@@ -32,7 +32,7 @@ export default function SecondWrapPage(props){
     }
 
     function handleNext() {
-        navigate('/mywrap3/'+code)
+        navigate('/mywrap4/'+code)
     }
 
     function handleBack() {
@@ -47,7 +47,6 @@ export default function SecondWrapPage(props){
     }
 
     function renderfirstVideo(){
-        console.log(choice)
         return (
             <Grid className="center" container spacing={2}>
             <Grid item xs={12} align="center">
@@ -69,8 +68,9 @@ export default function SecondWrapPage(props){
         return (
             <Grid className="center" container spacing={2}>
             <Grid item xs={12} align="center">
-                <h2> Do you know the first video you watched this year?</h2>      
-            </Grid>         
+                <h2> Do you know the first video you watched this year?</h2>     
+                <p> <em style={{ fontSize: "1.5rem", color: "#94D2BD" }}> Click to reveal</em></p> 
+            </Grid>                    
             <Grid item xs={6} align="center">
                 <div className="choice" onClick={() => handleChoiceMade("A")}>        
                     <img src={urlA} alt="choice1" width="360" height="202"></img>

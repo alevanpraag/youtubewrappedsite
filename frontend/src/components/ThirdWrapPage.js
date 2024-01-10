@@ -1,82 +1,119 @@
 import React, { useEffect, useState } from "react";
-import { json, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Grid} from '@mui/material';
-import { render } from "react-dom";
-import Plotly from 'plotly.js-dist-min';
 import IMAGES from '../index.js';
 
 export default function ThirdWrapPage(props){
-    let {code} = useParams();  
+    let {code} = useParams();
+    const [urlA, setUrlA] = useState("");
+    const [urlB, setUrlB] = useState("");
+    const [urlC, setUrlC] = useState("");
+    const [nameA, setNameA] = useState("");
+    const [nameB, setNameB] = useState("");
+    const [nameC, setNameC] = useState("");
+    const [countA, setCountA] = useState(0);
+    const [countB, setCountB] = useState(0);
+    const [countC, setCountC] = useState(0);
     const navigate = useNavigate();
-    const [counts, setCounts] = useState(null);
+    getWrapDetails();
 
-    async function makeGraph(){
-      let response = await fetch("/api/get-month"  + '?code=' + code);
-      let json_data = await response.json();
-      let arr = [];
-        for (let step = 12; step > 0; step--) {
-          let m = step.toString();
-          let count = json_data[m]
-          arr.push(count);
-        }
-          setCounts(arr);
-      let data = [
-      {
-            y: ['December', 'November', 'October','September','August','July','June','May','April','March','February','January'],
-            x: counts,
-            type: 'bar',
-            orientation: 'h',
-            text: counts? counts.map(String) : [],
-            textposition: "outside" ,
-            marker: {
-              color: ['#EE9B00', '#CA6702','#BB3E03', '#AE2012', '#9B2226', 
-                      '#EE9B00', '#CA6702','#BB3E03', '#AE2012', '#9B2226',
-                      '#EE9B00', '#CA6702']
-            }
-          }
-        ]; 
-        let layout = {
-            paper_bgcolor: "rgba(255,255,255, 0)",
-            plot_bgcolor:"rgba(255,255,255, 0)" ,
-            showlegend: false,
-            xaxis: {visible: false},
-            font: {color: '#EAF0F6'},
-            bargap:0
-      };
-        let element =  document.getElementById('myDiv');
-        if (typeof(element) != 'undefined' && element != null)
-        {
-          Plotly.newPlot('myDiv', data,layout, {staticPlot: true});
-        }    
-      } 
+    function getWrapDetails(){
+        fetch('/api/on-repeat' + '?code=' + code)
+        .then((response) => response.json()) 
+        .then((data) => {
+                            setUrlA(data.urlA);
+                            setUrlB(data.urlB);
+                            setUrlC(data.urlC);
+                            setNameA(data.nameA);
+                            setNameB(data.nameB);
+                            setNameC(data.nameC);
+                            setCountA(data.countA);
+                            setCountB(data.countB);
+                            setCountC(data.countC);                          })        
+    }
+
+    function handleNext() {
+        return null;
+    }
 
     function handleBack() {
-        navigate('/mywrap2/'+code)
-    }  
-    function handleNext() {
         navigate('/mywrap4/'+code)
+    }  
+    function handleHomePressed() {
+        navigate('/');
+      }       
+
+    function renderTop1(){
+        return (
+            <Container>        
+            <Grid item xs={12} align="center">
+                <div className="small-thmnl">        
+                    <img src={urlA} alt="top1" width="360" height="202"></img>
+                </div>
+            </Grid>        
+            <Grid item xs={12} align="center">
+                <h6 style={{ fontSize: "1rem" }}> 1. {nameA}</h6>
+            </Grid>           
+            <Grid item xs={12} align="center">
+                <h6 style={{ fontSize: "1rem" }}> watched {countA} times</h6>
+            </Grid>                                                 
+        </Container>            
+        );
     }    
 
-    function handleHomePressed() {
-      navigate('/');
-    }  
-    useEffect(() => {
-        makeGraph(); 
-      }); 
+    function renderTop2(){
+      return (
+          <Container>    
+          <Grid item xs={12} align="center">
+                  <div className="small-thmnl">        
+                      <img src={urlB} alt="top2" width="360" height="202"></img>
+                  </div>
+          </Grid>        
+          <Grid item xs={12} align="center">
+              <h6 style={{ fontSize: "1rem" }}>2. {nameB}</h6>
+          </Grid>         
+          <Grid item xs={12} align="center">
+            <h6 style={{ fontSize: "1rem" }}> watched {countB} times</h6>
+          </Grid>                                                                       
+      </Container>            
+      );
+  }        
 
-     
+  function renderTop3(){
+    return (
+        <Container>      
+        <Grid item xs={12} align="center">
+            <div className="small-thmnl">        
+                <img src={urlC} alt="top3" width="360" height="202"></img>
+            </div>
+        </Grid>      
+        <Grid item xs={12} align="center">
+            <h6 style={{ fontSize: "1rem" }}>3. {nameC}</h6>
+        </Grid>      
+        <Grid item xs={12} align="center">
+          <h6 style={{ fontSize: "1rem" }}> watched {countC} times</h6>
+        </Grid>                                                                       
+    </Container>            
+    );
+}     
 
     return (
-    <Container>
-    <Grid className="center" container spacing={2}>
-      <Grid item xs={12} align="center">
-      <h6>How many videos you watched each month</h6>      
-      </Grid>       
-      <Grid item xs={12} align="center">
-        <div id="myDiv"></div>
-      </Grid>                            
-    </Grid>
-    <Grid className="footer" align="center" container spacing={2} >
+        <Container>     
+          <Grid className="center" container spacing={2}>     
+            <Grid item xs={12} align="center">
+                <h2> Your top three videos this year</h2>      
+            </Grid> 
+            <Grid item xs={6} align="center">
+              {(countA>0) ? renderTop1() : null}
+            </Grid>
+            <Grid item xs={6} align="center">
+              {(countB>0) ? renderTop2() : null}
+            </Grid>     
+            <Grid item xs={12} align="center">
+              {(countC>0) ? renderTop3() : null}
+            </Grid>                       
+          </Grid>
+        <Grid className="footer" align="center" container spacing={2} >
     <Grid item xs={6} align="right">
         <div className="createbutton" onClick={handleBack}>
           <img src={IMAGES.rewind} width="49" height="26" />
@@ -87,8 +124,8 @@ export default function ThirdWrapPage(props){
           <img src={IMAGES.forward} width="49" height="26" />
         </div>
       </Grid>         
-    </Grid>
-    <Grid className="header" container spacing={1}>
+    </Grid>  
+        <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">
           <div onClick={handleHomePressed}>
           <svg className="homebutton" viewBox="0 0 30 31" xmlns="http://www.w3.org/2000/svg">
@@ -101,7 +138,8 @@ export default function ThirdWrapPage(props){
         </Grid>  
         <Grid item xs={6} align="right">              
         </Grid>    
-      </Grid>               
-    </Container>
-    )
+      </Grid>                            
+        </Container>
+        )
 }
+

@@ -1,89 +1,57 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from 'react-router-dom';
 import { Container, Grid} from '@mui/material';
-import Plotly from 'plotly.js-dist-min';
 import IMAGES from '../index.js';
 
 export default function FourthWrapPage(props){
     let {code} = useParams();  
     const navigate = useNavigate();
-    const [counts, setCounts] = useState(null);
-    const [categories, setCategories] = useState(null);
-    if (counts == null){
-        getCatData();
-    }
-
-    function makeGraph(){
-        if (counts == null){return null;}
-        var data = [
-          {
-            labels: categories,
-            values: counts,
-            textinfo: "label",
-            textposition: "outside",
-            automargin: true,
-            type: 'pie',
-            marker: {
-              colors: ['#005F73', '#0A9396','#94D2BD', 
-                      '#EE9B00', '#CA6702','#BB3E03', '#AE2012', '#9B2226',
-                      '#005F73', '#0A9396','#94D2BD', 
-                      '#EE9B00', '#CA6702']
-            }
-          }
-        ]; 
-        var layout = {
-            paper_bgcolor: "rgba(255,255,255, 0)",
-            plot_bgcolor:"rgba(255,255,255, 0)" ,
-            showlegend: false,
-            font: {color: '#EAF0F6'},
-            height: 600,
-            width: 600,
-      };
-        var element =  document.getElementById('myDiv');
-        if (typeof(element) != 'undefined' && element != null)
-        {
-          Plotly.newPlot('myDiv', data,layout,  {displayModeBar: false});
-        }    
-      } 
+    const [countM, setCountM] = useState(null);
+    const [countC, setCountC] = useState(null);
+    const [month, setMonth] = useState(null);
+    const [cat, setCat] = useState(null);          
+    getCatData();
 
     function handleBack() {
-        navigate('/mywrap3/'+code)
+        navigate('/mywrap2/'+code)
     }  
     function handleNext() {
-      return null;
+      navigate('/mywrap3/'+code)
   }     
 
     function getCatData() {
-        fetch("/api/get-categories"  + '?code=' + code)
+        fetch("/api/get-monthscats"  + '?code=' + code)
         .then((response) => response.json()) 
         .then((data) => {
-            var tmp_counts = [];
-            var tmp_cats = [];
-            for (const [key, value] of Object.entries(data)) {
-                tmp_cats.push(key);
-                tmp_counts.push(value);
-              }
-            setCounts(tmp_counts);
-            setCategories(tmp_cats);
+            setCountM(data.countM);
+            setMonth(data.month);
+            setCat(data.cat);
+            setCountC(data.countC);
         })  
     }
     function handleHomePressed() {
       navigate('/');
     }  
-    useEffect(() => {
-        makeGraph(); 
-      }); 
 
       return (
         <Container>
     
     <Grid className="center" container spacing={2}>
       <Grid item xs={12} align="center">
-      <h6>How many videos you watched each month</h6>      
+      <h6>You watched the most videos in</h6>      
+      </Grid>   
+      <Grid item xs={12} align="center">
+      <h6> <span style={{ color: "#EE9B00", fontSize: "2rem" }}>{month} </span> when you watched <span style={{ color: "#0A9396", fontSize: "1.75rem" }}>{countM} </span> videos</h6>      
+      </Grid>    
+      <Grid item xs={12} align="center">
+      <h6>&</h6>      
+      </Grid>               
+      <Grid item xs={12} align="center">
+      <h6>You watched the most videos in this category</h6>      
       </Grid>       
       <Grid item xs={12} align="center">
-        <div id="myDiv"></div>
-      </Grid>                                
+      <h6>You watched <span style={{ color: "#0A9396", fontSize: "1.75rem" }}>{countC} </span> <span style={{ color: "#AE2012", fontSize: "2rem" }}>{cat} </span> videos</h6>      
+      </Grid>                                 
     </Grid>
     <Grid className="footer" align="center" container spacing={2} >
     <Grid item xs={6} align="right">
