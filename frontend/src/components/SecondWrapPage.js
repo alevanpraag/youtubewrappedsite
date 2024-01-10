@@ -77,10 +77,16 @@ export default function SecondWrapPage(props){
                 </div>
             </Grid>     
             <Grid item xs={6} align="center">
-                <div className="choice" onClick={() => handleChoiceMade("B")}>        
-                    <img src={urlB} alt="choice2" width="360" height="202"></img>
-                </div>
-            </Grid>         
+                    <div className="choice" onClick={() => handleChoiceMade("B")}>        
+                        <img src={urlB} alt="choice2" width="360" height="202"></img>
+                    </div>
+            </Grid>      
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "1rem" }}>{nameA}</h6>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "1rem" }}>{nameB}</h6>
+            </Grid>                
             <Grid item xs={6} align="center">
                 <div className="choice" onClick={() => handleChoiceMade("C")}>        
                     <img src={urlC} alt="choice3" width="360" height="202"></img>
@@ -90,7 +96,13 @@ export default function SecondWrapPage(props){
                 <div className="choice" onClick={() => handleChoiceMade("D")}>        
                     <img src={urlD} alt="choice4" width="360" height="202"></img>
                 </div>
-            </Grid>                                               
+            </Grid>  
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "1rem" }}>{nameC}</h6>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "1rem" }}>{nameD}</h6>
+            </Grid>                                                            
         </Grid>            
         );
     }    

@@ -90,7 +90,10 @@ export default function CreateWrapPage(props) {
         </Grid>  
         <Grid item xs={12} align="center">
         <div className="lds-ring"><div></div><div></div><div></div><div></div></div>
-        </Grid>                   
+        </Grid>      
+        <Grid item xs={12} align="center">
+        <p> <em style={{ fontSize: "1.5rem", color: "#94D2BD" }}> Please wait, this can take several minutes...</em></p>
+        </Grid>                         
       </Grid>      
     );
   }

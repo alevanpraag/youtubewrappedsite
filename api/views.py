@@ -14,6 +14,7 @@ import csv
 from django.http import JsonResponse
 import re
 import os
+import datetime as dt
 
 
 class AllWrappedView(generics.ListAPIView):
@@ -42,7 +43,7 @@ class CreateWrapView(APIView):
     my_key = 'AIzaSyAj_otQff7NB2HsyD1RZFiNBLGgFw1uAzg'
 
     def get_data(self,key, region, *ids):
-        url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails"
+        url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails&part=statistics"
         r = requests.get(url.format(ids=",".join(ids), api_key=key))
         js = r.json()
         items = js["items"]
@@ -51,7 +52,11 @@ class CreateWrapView(APIView):
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
             try:
-                yield item["id"], item["snippet"]["title"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], item['snippet']['thumbnails']['default']['url'], item['contentDetails']['duration']
+                try:
+                    url = item['snippet']['thumbnails']['maxres']['url']
+                except:
+                    url = item['snippet']['thumbnails']['default']['url']
+                yield item["id"], item["snippet"]["title"], item["snippet"]["publishedAt"], item["statistics"]["viewCount"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], url, item['contentDetails']['duration']
             except:
                 continue
 
@@ -75,22 +80,15 @@ class CreateWrapView(APIView):
             mins = 0
         return mins
 
-    def get_hd_pic(self,thumbnail):
-        if thumbnail[-12:] == "/default.jpg":
-            new_url = thumbnail[:-11] + "maxresdefault.jpg"
-            return new_url
-        else:
-            return thumbnail
-
     def create_videos(self,key,wrap,video_list, month_dict):
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
-            for video_id, title, cat, chnl, thmnl, dur in self.get_data(key, "IE",  *video_sublst):
+            for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data(key, "IE",  *video_sublst):
                 month = month_dict[video_id]
+                date = dt.datetime.fromisoformat(iso_date[:10])
                 duration = self.dur_to_mins(dur)
-                thumbnail = self.get_hd_pic(thmnl)
                 video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = duration,
-                                    category = cat, thumbnail = thumbnail, month= month)
+                                    date = date, views = views, category = cat, thumbnail = thumbnail, month= month)
                 video.save() 
 
     def get_total_time(self,wrap):
@@ -115,35 +113,36 @@ class CreateWrapView(APIView):
                 for video in watch_history:
                     if not self.is_ad(video):
                         if "time" in video:
-                            video_year = (video['time'])[:4]
+                            video_year = int((video['time'])[:4])
                             video_month = (video['time'])[5:7]
-                            if video_year != '2023':
+                            if video_year < 2023:
                                 break
-                            else:
-                                if "titleUrl" in video:
-                                    video_id = str((video['titleUrl'])[32:])
-                                    video_list.append(video_id)
-                                    month_dict[video_id] = int(video_month)                 
+                            elif "titleUrl" in video:
+                                video_id = str((video['titleUrl'])[32:])
+                                video_list.append(video_id)
+                                month_dict[video_id] = int(video_month)                 
                 #if same user requests a new wrap, delete old info
                 if queryset.exists():  
                     wrap = queryset[0] 
                     Video.objects.filter(wrap=wrap).delete()
-                    wrap.name = name   
-                    wrap.file = file
-                    self.request.session['code'] = wrap.code
+                    wrap.name = name  
+                    old_file = wrap.file
+                    if file != old_file:
+                        old_file.delete()
+                        wrap.file = file
                     wrap.save(update_fields=['name', 'file'])
                     curr_status=status.HTTP_200_OK
                 else:
                     wrap = Wrapped(host=host, name=name,file=file)
                     wrap.save()
-                    self.request.session['code'] = wrap.code
                     curr_status=status.HTTP_201_CREATED    
                 self.create_videos(self.my_key,wrap,video_list, month_dict)
                 videos = Video.objects.filter(wrap=wrap)
                 wrap.channels = videos.order_by().values('channel').distinct().count()
-                wrap.count = videos.count()#videos.order_by().values('video_id').distinct().count()
+                wrap.count = videos.order_by().values('video_id').distinct().count()
                 wrap.time = self.get_total_time(wrap)               
-                wrap.save(update_fields=['count','time','channels'])    
+                wrap.save(update_fields=['count','time','channels'])   
+                self.request.session['code'] = wrap.code 
                 return Response(WrappedSerializer(wrap).data, status=curr_status)      
         else:
             return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
@@ -245,18 +244,35 @@ class OnRepeat(APIView):
     serializer_class = VideoSerializer
     lookup_url_kwarg = 'code'
 
-    def get_hd_pic(self,video):
-        if video.thumbnail[-12:] == "/default.jpg":
-            new_url = video.thumbnail[:-11] + "maxresdefault.jpg"
-            video.thumbnail = new_url
-            video.save(update_fields=['thumbnail'])
-
-    def get_most(self,wrap):
-        first = None
+    def get_counts(self,wrap):
+        counts = {}
         for vid in wrap.videos.all():
-            if vid.category == 'Music':
-                first = vid
-        return first
+            counts[vid.video_id] = counts.get(video_id,0)+1
+        return get_counts
+
+    def get_repeats(self,counts):
+        repeats = []
+        for key, value in counts.items():
+            if value > 1:
+                repeats.append(key)
+        return repeats
+
+    def get_most(self,repeats):
+        top = repeats.sort()
+        top3 = {}
+        if len(top)>0:
+            videoA = Videos.objects.filter(video_id=top[0])
+            top3["nameA"] = videoA.title
+            top3["urlA"] = videoA.thumbnail
+        if len(top)>1:
+            videoB = Videos.objects.filter(video_id=top[1])
+            top3["nameB"] = videoB.title
+            top3["urlB"] = videoB.thumbnail            
+        if len(top)>2:
+            videoC = Videos.objects.filter(video_id=top[2])
+            top3["nameC"] = videoC.title
+            top3["urlC"] = videoC.thumbnail            
+        return top3
 
     def get(self, request, format=None):
         code = request.GET.get(self.lookup_url_kwarg)
@@ -264,9 +280,8 @@ class OnRepeat(APIView):
             queryset = Wrapped.objects.filter(code=code)
             if len(queryset) > 0:
                 wrap = queryset[0]   
-                video = self.get_most(wrap)
-                self.get_hd_pic(video)              
-                return Response(VideoSerializer(video).data, status=status.HTTP_200_OK)
+                videos = self.get_most(wrap)            
+                return JsonResponse(videos, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST) 
 

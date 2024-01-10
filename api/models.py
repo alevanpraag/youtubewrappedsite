@@ -1,6 +1,7 @@
 from django.db import models
 import string
 import random
+import datetime as dt
 
 
 def generate_unique_code():
@@ -32,3 +33,5 @@ class Video(models.Model):
     category = models.CharField(max_length=100)  
     thumbnail = models.CharField(max_length=100)  
     month = models.IntegerField(default=0) 
+    date = models.DateTimeField()
+    views = models.IntegerField(default=0) 

@@ -87,8 +87,12 @@ h1 {
   height: 202.5px;
   width: 360px;
   color: #EAF0F6;
-  border-style: solid;
-  border-color: #000;
+  border: 2px inset #9B2226;
+}
+
+.choice:hover {
+  cursor: pointer;
+  border-color: #0A9396;
 }
 
 .counter {
@@ -235,7 +239,8 @@ h1 {
 
 .loader {
     margin: auto;
-    border: 10px solid #EAF0F6;
+    color: #E9D8A6;
+    border: 10px solid #E9D8A6;
     border-radius: 50%;
     border-top: 10px solid #EAF0F6;
     width: 100px;
@@ -260,10 +265,10 @@ h1 {
     width: 64px;
     height: 64px;
     margin: 8px;
-    border: 8px solid #EAF0F6;
+    border: 8px solid #94D2BD;
     border-radius: 50%;
     animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-    border-color: #EAF0F6 transparent transparent transparent;
+    border-color: #94D2BD transparent transparent transparent;
   }
   .lds-ring div:nth-child(1) {
     animation-delay: -0.45s;
@@ -282,6 +287,7 @@ h1 {
       transform: rotate(360deg);
     }
   }
+  
 
 .playbutton {
   align-items: center;
