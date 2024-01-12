@@ -10,7 +10,8 @@ def generate_unique_code():
     while True:
         code = ''.join(random.choices(string.ascii_uppercase, k=length))
         if Wrapped.objects.filter(code=code).count() == 0:
-            break
+            if code != '000000':
+                break
 
     return code
 

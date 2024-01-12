@@ -4,13 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import IMAGES from '../index.js';
 
 export default function HomePage(props) {   
-    const [code, setCode] = useState(null);
+    const [code, setCode] = useState("");
+    const [prevUser, setPrevUser] = useState(false);
     const navigate = useNavigate(); 
+    console.log(prevUser);
+    console.log(code);
+    checkUser();     
 
     function checkUser(){
         fetch('/api/check-user')
         .then((response) => (response.json()))
-        .then((data) => {setCode(data.code)})       
+        .then((data) => { setPrevUser(data.prevUser);
+                          setCode(data.code);
+                          console.log(data.code)})    
       }
 
     function handlePreviousPressed() {
@@ -26,16 +32,12 @@ export default function HomePage(props) {
       }      
 
     function renderPreviousButton(){
-        if (code == null){return null;}
+      console.log(prevUser);
         return (
         <Grid item xs={12} align="center">
             <div className="createbutton" onClick={handlePreviousPressed}> See My Rewind</div>
         </Grid>);    
     } 
-
-  useEffect(() => {
-    checkUser(); 
-  });
 
     return (
       <Container>
@@ -50,7 +52,7 @@ export default function HomePage(props) {
             <span className="playText"> Start </span>
             </div>
           </Grid>  
-          {renderPreviousButton()}         
+          {(prevUser) ? renderPreviousButton() : null}         
         </Grid> 
         <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">          

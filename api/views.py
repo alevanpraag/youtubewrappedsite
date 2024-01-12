@@ -289,5 +289,9 @@ class CheckUser(APIView):
     def get(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
-        data = {'code': self.request.session.get('code')}
-        return JsonResponse(data, status=status.HTTP_200_OK)              
+        if 'code' in self.request.session:
+            data = {'code': self.request.session.get('code'), 'prevUser' : True}
+            return JsonResponse(data)     
+        else:
+            data = {'code': '000000', 'prevUser' : False}
+            return JsonResponse(data,  status=status.HTTP_200_OK)            
