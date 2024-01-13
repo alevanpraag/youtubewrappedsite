@@ -7,16 +7,13 @@ export default function HomePage(props) {
     const [code, setCode] = useState("");
     const [prevUser, setPrevUser] = useState(false);
     const navigate = useNavigate(); 
-    console.log(prevUser);
-    console.log(code);
     checkUser();     
 
     function checkUser(){
         fetch('/api/check-user')
         .then((response) => (response.json()))
         .then((data) => { setPrevUser(data.prevUser);
-                          setCode(data.code);
-                          console.log(data.code)})    
+                          setCode(data.code);})    
       }
 
     function handlePreviousPressed() {
@@ -32,7 +29,6 @@ export default function HomePage(props) {
       }      
 
     function renderPreviousButton(){
-      console.log(prevUser);
         return (
         <Grid item xs={12} align="center">
             <div className="createbutton" onClick={handlePreviousPressed}> See My Rewind</div>

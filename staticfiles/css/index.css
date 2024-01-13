@@ -1,0 +1,352 @@
+html, 
+body {
+    height: 100%;
+    margin: 2px;
+    padding: 0;
+    background: #001219;
+}
+
+#main {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    margin: 2px;
+    left: 0;
+    top: 0;
+}
+
+#app {
+  width: 100%;
+  height: 100%; 
+  margin: 1px;
+}
+
+.home{
+  position:absolute;
+  top:0;
+  left:0;
+  padding: 0.625rem 1.25rem;
+ }
+
+ .header{
+  position:absolute;
+  top:0;
+  left: 0;
+  padding: 0.625rem 1.25rem;
+ } 
+
+ .footer{
+  position:absolute;
+  bottom:0;
+  padding: 0.625rem 1.25rem;
+  right: 0;
+ } 
+
+h3 {
+    font-family: 'Rubik Glitch';
+    font-size: 5rem;
+    font-weight: 400;
+    margin: 0;
+    color: #E9D8A6;
+}
+
+h2 {
+  font-family: 'Roboto';
+  font-size: 2.5rem;
+  font-weight: 400;
+  margin: 0;
+  color: #E9D8A6;
+}
+
+h6 {
+  font-family: 'Roboto';
+  font-size: 1.5rem;
+  font-weight: 400;
+  margin: 0;
+  color: #E9D8A6;
+}
+
+
+h1 {
+    font-family: 'Roboto';
+    font-size: 5rem;
+    font-weight: 700;
+    margin: 0;
+    color: #E9D8A6;
+}
+
+.rectangle {
+  height: 270px;
+  width: 480px;
+  color: #EAF0F6;
+  border-style: solid;
+  border-color: #000;
+}
+
+.small-thmnl {
+  height: 202.5px;
+  width: 360px;
+  color: #EAF0F6;
+  border: 2px inset #9B2226;
+}
+
+.choice {
+  height: 202.5px;
+  width: 360px;
+  color: #EAF0F6;
+  border: 2px inset #9B2226;
+}
+
+.choice:hover {
+  cursor: pointer;
+  border-color: #0A9396;
+}
+
+.counter {
+  height: fit-content;
+  width: fit-content;
+  padding: 10px;
+  font-family: 'Roboto';
+  font-size: 2.5rem;
+  font-weight: 400;
+  margin: 0;
+  color: #E9D8A6;
+  border-style: solid;
+  border-color: #000;
+  background: #AE2012;
+}
+
+.center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.inputfile + label {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-size: 1.25rem;
+  color: #E9D8A6;
+  max-width: 80%;
+  border: 1px outset rgba(255, 255, 255, .2);
+  background:rgba(255, 255, 255, .1);  
+  /* 20px */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.62rem 1.25rem;
+  border-radius: 10px;
+  /* 10px 20px */
+}
+
+.inputfile:focus + label,
+.inputfile.has-focus + label {
+  background:rgba(255, 255, 255, .2);
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.inputfile + label svg {
+  width: 1em;
+  height: 1em;
+  vertical-align: middle;
+  fill: currentColor;
+  margin-top: -0.25em;
+    /* 4px */
+  margin-right: 0.25em;
+    /* 4px */
+}
+
+.inputfile:focus + label,
+.inputfile.has-focus + label,
+.inputfile + label:hover {
+  background:rgba(255, 255, 255, .2);
+}
+
+.createbutton {
+    font-family: 'Roboto';
+    font-weight: 400;
+    font-size: 1.25rem;
+    color: #E9D8A6;
+    max-width: 80%;
+    border: 1px outset rgba(255, 255, 255, .2);
+    background:rgba(255, 255, 255, .1);  
+    /* 20px */
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    display: inline-block;
+    overflow: hidden;
+    padding: 0.62rem 1.25rem;
+    border-radius: 10px;
+    /* 10px 20px */
+}
+
+.createbutton:focus,
+.createbutton.has-focus {
+    background:rgba(255, 255, 255, .2);
+    outline: -webkit-focus-ring-color auto 5px;
+}
+
+.createbutton:hover {
+  background:rgba(255, 255, 255, .2);
+}
+
+.namebutton {
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-size: 1.25rem;
+  color: #E9D8A6;
+  max-width: 80%;
+  border: 1px outset rgba(255, 255, 255, .2);
+  background:rgba(255, 255, 255, .1);  
+  /* 20px */
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  display: inline-block;
+  overflow: hidden;
+  padding: 0.62rem 1.25rem;
+  border-radius: 10px;
+  /* 10px 20px */
+  text-align: center;
+  /* 10px 20px */
+}
+
+.namebutton:focus,
+.namebutton.has-focus {
+  background:rgba(255, 255, 255, .2);
+  outline: -webkit-focus-ring-color auto 5px;
+}
+
+.namebutton:hover {
+  background:rgba(255, 255, 255, .2);
+  cursor: text;
+}
+
+::placeholder {
+  color: #E9D8A6;
+  opacity: 1; /* Firefox */
+}
+
+::-ms-input-placeholder { /* Edge 12 -18 */
+  color: #E9D8A6;
+}
+
+.loader {
+    margin: auto;
+    color: #E9D8A6;
+    border: 10px solid #E9D8A6;
+    border-radius: 50%;
+    border-top: 10px solid #EAF0F6;
+    width: 100px;
+    height: 100px;
+    animation: spinner 3s linear infinite;
+  }
+  @keyframes spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .lds-ring {
+    display: inline-block;
+    position: relative;
+    width: 80px;
+    height: 80px;
+  }
+  .lds-ring div {
+    box-sizing: border-box;
+    display: block;
+    position: absolute;
+    width: 64px;
+    height: 64px;
+    margin: 8px;
+    border: 8px solid #94D2BD;
+    border-radius: 50%;
+    animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    border-color: #94D2BD transparent transparent transparent;
+  }
+  .lds-ring div:nth-child(1) {
+    animation-delay: -0.45s;
+  }
+  .lds-ring div:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+  .lds-ring div:nth-child(3) {
+    animation-delay: -0.15s;
+  }
+  @keyframes lds-ring {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
+
+.playbutton {
+  align-items: center;
+  max-width: fit-content;
+  border: 1px outset rgba(255, 255, 255, .2);
+  background:rgba(255, 255, 255, .1);  
+  display: grid;
+  grid-template-columns: auto 1fr;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0.30rem 1.25rem;
+  border-radius: 10px;
+}
+.playText {
+  color: #E9D8A6;
+  font-family: 'Roboto';
+  font-weight: 400;
+  font-size: 1.25rem;  
+  justify-self: center;
+  margin-left: 5px;
+}
+.playIcon {
+  justify-self: start;
+  width: 35px;
+  height: 35px;
+}
+.playbutton:focus,
+.playbutton.has-focus {
+  background:rgba(255, 255, 255, .2);
+  outline: -webkit-focus-ring-color auto 5px;
+}
+.playbutton:hover {
+background:rgba(255, 255, 255, .2);
+}
+
+.helpbutton {
+  fill: #005F73;
+  width: 45px;
+  height: 45px;
+}
+
+.helpbutton:hover path{
+  fill: #0A9396;
+}
+
+.homebutton {
+  fill: #EE9B00;
+  width: 40px;
+  height: 40px;
+}
+
+.homebutton:hover path{
+  fill: #CA6702;
+}
+

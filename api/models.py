@@ -3,7 +3,6 @@ import string
 import random
 import datetime as dt
 
-
 def generate_unique_code():
     length = 6
 
@@ -19,7 +18,6 @@ class Wrapped(models.Model):
     code = models.CharField(max_length=8, default=generate_unique_code, unique=True)    
     host = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=64)
-    file = models.FileField(upload_to="watch_history/jsons/")
     created_at = models.DateTimeField(auto_now_add=True) 
     count = models.IntegerField(null=False, default=0)   
     time = models.IntegerField(default=0)   
@@ -35,4 +33,4 @@ class Video(models.Model):
     thumbnail = models.CharField(max_length=100)  
     month = models.IntegerField(default=0) 
     date = models.DateTimeField()
-    views = models.IntegerField(default=0) 
+    views = models.BigIntegerField(default=0) 

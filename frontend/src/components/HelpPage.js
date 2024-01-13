@@ -14,7 +14,7 @@ export default function HelpPage(props){
 
   function handleChangePage(value){
     const newPage = page + value;
-    if (newPage >= 0 && newPage <6){
+    if (newPage >= 0 && newPage <7){
       setPage(newPage);
     }
   }
@@ -106,7 +106,13 @@ export default function HelpPage(props){
           <Grid item xs={12} align="center">
             <img src={IMAGES.imgEight} width="500" height="500" />
             <h6>Choose how you want to recieve the file</h6>
-          </Grid> );                             
+          </Grid> );       
+      case 6:
+        return (        
+          <Grid item xs={12} align="center">
+            <h6>You should recieve a zip file from YouTube.</h6>
+            <h6>You can find "watch-history.json" in folder: Takeout\YouTube and YouTube Music\history </h6>
+          </Grid> );                                   
     }    
   }
 

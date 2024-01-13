@@ -16,6 +16,7 @@ import re
 import os
 import datetime as dt
 import calendar
+from django.core.files.storage import default_storage
 
 
 class AllWrappedView(generics.ListAPIView):
@@ -53,13 +54,13 @@ class CreateWrapView(APIView):
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
             try:
-                try:
-                    url = item['snippet']['thumbnails']['maxres']['url']
-                except:
-                    url = item['snippet']['thumbnails']['default']['url']
+                url = item['snippet']['thumbnails']['maxres']['url']
+            except KeyError:
+                url = item['snippet']['thumbnails']['default']['url']            
+            try:
                 yield item["id"], item["snippet"]["title"], item["snippet"]["publishedAt"], item["statistics"]["viewCount"], categories[item["snippet"]["categoryId"]], item["snippet"]["channelTitle"], url, item['contentDetails']['duration']
-            except:
-                continue
+            except KeyError:
+                yield None, None, None, None, None, None, None, None
 
     def is_ad(self,video):
         try:
@@ -85,12 +86,13 @@ class CreateWrapView(APIView):
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
             for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data(key, "IE",  *video_sublst):
-                month = month_dict[video_id]
-                date = dt.datetime.fromisoformat(iso_date[:10])
-                duration = self.dur_to_mins(dur)
-                video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = duration,
-                                    date = date, views = views, category = cat, thumbnail = thumbnail, month= month)
-                video.save() 
+                if video_id != None:
+                    month = month_dict[video_id]
+                    date = dt.datetime.fromisoformat(iso_date[:10])
+                    duration = self.dur_to_mins(dur)
+                    video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = duration,
+                                        date = date, views = views, category = cat, thumbnail = thumbnail, month= month)
+                    video.save() 
 
     def get_total_time(self,wrap):
         total = 0
@@ -100,51 +102,47 @@ class CreateWrapView(APIView):
         
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
-            self.request.session.create()
+            self.request.session.create()   
         serializer = self.serializer_class(data=request.data)
         if serializer.is_valid():
             name = serializer.data.get('name')
             host = self.request.session.session_key
             queryset = Wrapped.objects.filter(host=host)
-            with open(request.data.get('file').temporary_file_path(),'r') as f:
-                file = File(f, name=request.data.get('file').name)
-                watch_history = json.load(f)
-                video_list = []
-                month_dict = {}
-                for video in watch_history:
-                    if not self.is_ad(video):
-                        if "time" in video:
-                            video_year = int((video['time'])[:4])
-                            video_month = (video['time'])[5:7]
-                            if video_year < 2023:
-                                break
-                            elif "titleUrl" in video:
-                                video_id = str((video['titleUrl'])[32:])
-                                video_list.append(video_id)
-                                month_dict[video_id] = int(video_month)                 
-                #if same user requests a new wrap, delete old info
-                if queryset.exists():  
-                    wrap = queryset[0] 
-                    Video.objects.filter(wrap=wrap).delete()
-                    wrap.name = name  
-                    old_file = wrap.file
-                    if file != old_file:
-                        old_file.delete()
-                        wrap.file = file
-                    wrap.save(update_fields=['name', 'file'])
-                    curr_status=status.HTTP_200_OK
-                else:
-                    wrap = Wrapped(host=host, name=name,file=file)
-                    wrap.save()
-                    curr_status=status.HTTP_201_CREATED    
-                self.create_videos(self.my_key,wrap,video_list, month_dict)
-                videos = Video.objects.filter(wrap=wrap)
-                wrap.channels = videos.order_by().values('channel').distinct().count()
-                wrap.count = videos.order_by().values('video_id').distinct().count()
-                wrap.time = self.get_total_time(wrap)               
-                wrap.save(update_fields=['count','time','channels'])   
-                self.request.session['code'] = wrap.code 
-                return Response(WrappedSerializer(wrap).data, status=curr_status)      
+            f = request.data.get('file').read()
+            my_json = f.decode('utf8').replace("'", '"')
+            watch_history = json.loads(my_json)
+            video_list = []
+            month_dict = {}
+            for video in watch_history:
+                if not self.is_ad(video):
+                    if "time" in video:
+                        video_year = int((video['time'])[:4])
+                        video_month = (video['time'])[5:7]
+                        if video_year < 2023:
+                            break
+                        elif "titleUrl" in video:
+                            video_id = str((video['titleUrl'])[32:])
+                            video_list.append(video_id)
+                            month_dict[video_id] = int(video_month)                 
+            #if same user requests a new wrap, delete old info
+            if queryset.exists():  
+                wrap = queryset[0] 
+                Video.objects.filter(wrap=wrap).delete()
+                wrap.name = name  
+                wrap.save(update_fields=['name'])
+                curr_status=status.HTTP_200_OK
+            else:
+                wrap = Wrapped(host=host, name=name)
+                wrap.save()
+                curr_status=status.HTTP_201_CREATED    
+            self.create_videos(self.my_key,wrap,video_list, month_dict)
+            videos = Video.objects.filter(wrap=wrap)
+            wrap.channels = videos.order_by().values('channel').distinct().count()
+            wrap.count = videos.order_by().values('video_id').distinct().count()
+            wrap.time = self.get_total_time(wrap)              
+            wrap.save(update_fields=['count','time','channels'])   
+            self.request.session['code'] = wrap.code 
+            return Response(WrappedSerializer(wrap).data, status=curr_status)      
         else:
             return Response({'Bad Request': 'Invalid data...'}, status=status.HTTP_400_BAD_REQUEST)
                 
@@ -291,7 +289,7 @@ class CheckUser(APIView):
             self.request.session.create()
         if 'code' in self.request.session:
             data = {'code': self.request.session.get('code'), 'prevUser' : True}
-            return JsonResponse(data)     
+            return JsonResponse(data, status=status.HTTP_200_OK)     
         else:
             data = {'code': '000000', 'prevUser' : False}
             return JsonResponse(data,  status=status.HTTP_200_OK)            

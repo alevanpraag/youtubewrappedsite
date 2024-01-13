@@ -23,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-tb17x#pb=+pq^si1!3mawbool!b56u=&vl!3!^ywvq9&oex290'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['youtube-rewind-410800.uc.r.appspot.com', 'localhost','127.0.0.1']
 
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'api.apps.ApiConfig',
     'rest_framework',
-    'frontend.apps.FrontendConfig',   
+    'frontend.apps.FrontendConfig',
 ]
 
 MIDDLEWARE = [
@@ -83,7 +83,7 @@ if os.getenv('GAE_APPLICATION', None):
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'HOST': '/cloudsql/youtube-rewind-410800:us-central1:youtube-rewind-instance',
             'USER': 'ale',
-            'PASSWORD': "yE>(Urc_'5ysPR'$",
+            'PASSWORD': "yE>{Urc_'5ysPR'$",
             'NAME': 'main',
         }
     }
@@ -141,8 +141,10 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
-STATIC_URL = "https://storage.googleapis.com/youtube-rewind-static/staticfiles/"
-
+if os.getenv('GAE_APPLICATION', None):
+    STATIC_URL = "https://storage.googleapis.com/youtube-rewind-static/staticfiles/"
+else:
+    STATIC_URL = 'staticfiles/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
@@ -150,6 +152,5 @@ STATIC_URL = "https://storage.googleapis.com/youtube-rewind-static/staticfiles/"
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = "https://storage.googleapis.com/youtube-rewind-media/"
 MEDIA_ROOT = "https://storage.googleapis.com/youtube-rewind-media/"
-FILE_UPLOAD_HANDLERS = [
-    'django.core.files.uploadhandler.TemporaryFileUploadHandler',
-]
+GS_BUCKET_NAME= "youtube-rewind-410800_youtube-rewind-media"
+GS_PROJECT_ID = 'youtube-rewind-410800'
