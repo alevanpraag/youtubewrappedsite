@@ -12,7 +12,6 @@
 # below:
 /frontend/node_modules/
 .env
-Cloud-sql-proxy
 
 # Python pycache:
 __pycache__/

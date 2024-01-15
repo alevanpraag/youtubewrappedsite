@@ -6,8 +6,7 @@ import IMAGES from '../index.js';
 export default function HomePage(props) {   
     const [code, setCode] = useState("");
     const [prevUser, setPrevUser] = useState(false);
-    const navigate = useNavigate(); 
-    checkUser();     
+    const navigate = useNavigate();    
 
     function checkUser(){
         fetch('/api/check-user')
@@ -34,6 +33,10 @@ export default function HomePage(props) {
             <div className="createbutton" onClick={handlePreviousPressed}> See My Rewind</div>
         </Grid>);    
     } 
+    useEffect(() => {
+      // check if user has created a rewind before
+      checkUser();  
+    });    
 
     return (
       <Container>

@@ -18,6 +18,7 @@ import datetime as dt
 import calendar
 from django.core.files.storage import default_storage
 
+google_api_key = os.getenv('GOOGLE_API_KEY', None)
 
 class AllWrappedView(generics.ListAPIView):
     queryset = Wrapped.objects.all()
@@ -42,15 +43,14 @@ class CreateWrapView(APIView):
     parser_classes = (MultiPartParser, FormParser)
     serializer_class = CreateWrapSerializer
     lookup_url_kwarg = 'code'
-    my_key = 'AIzaSyAj_otQff7NB2HsyD1RZFiNBLGgFw1uAzg'
 
-    def get_data(self,key, region, *ids):
+    def get_data(self, region, *ids):
         url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails&part=statistics"
-        r = requests.get(url.format(ids=",".join(ids), api_key=key))
+        r = requests.get(url.format(ids=",".join(ids), api_key=google_api_key))
         js = r.json()
         items = js["items"]
         cat_js = requests.get("https://www.googleapis.com/youtube/v3/videoCategories?part=snippet&regionCode={}&key={}".format(region,
-            key)).json()
+            google_api_key)).json()
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
             try:
@@ -82,10 +82,10 @@ class CreateWrapView(APIView):
             mins = 0
         return mins
 
-    def create_videos(self,key,wrap,video_list, month_dict):
+    def create_videos(self,wrap,video_list, month_dict):
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
-            for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data(key, "IE",  *video_sublst):
+            for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data( "IE",  *video_sublst):
                 if video_id != None:
                     month = month_dict[video_id]
                     date = dt.datetime.fromisoformat(iso_date[:10])
@@ -135,7 +135,7 @@ class CreateWrapView(APIView):
                 wrap = Wrapped(host=host, name=name)
                 wrap.save()
                 curr_status=status.HTTP_201_CREATED    
-            self.create_videos(self.my_key,wrap,video_list, month_dict)
+            self.create_videos(wrap,video_list, month_dict)
             videos = Video.objects.filter(wrap=wrap)
             wrap.channels = videos.order_by().values('channel').distinct().count()
             wrap.count = videos.order_by().values('video_id').distinct().count()
