@@ -85,19 +85,13 @@ export default function MyWrapPage(props){
         {numberCounter(count)}               
       </Grid>    
       <Grid item xs={6} sx={{display: "flex", justifyContent: "flex-start", alignItems: "center"}}>
-        <Box sx={{display: "inline-block"}} >
-        <h6> different</h6>
         <h2> videos</h2>
-        </Box>
       </Grid>       
       <Grid item xs={6} align="center">
         {numberCounter(chnls)}                
       </Grid>                
       <Grid item xs={6} sx={{display: "flex", justifyContent: "flex-start", alignItems: "center"}}>
-      <Box sx={{display: "inline-block"}} >
-        <h6> different</h6>
         <h2> channels</h2>
-        </Box>
       </Grid>                  
     </Grid>
     <Grid className="footer" align="center" container spacing={2} >

@@ -6,19 +6,12 @@ import IMAGES from '../index.js';
 export default function FifthWrapPage(props){
     let {code} = useParams();
     const [urlA, setUrlA] = useState("");
-    const [urlB, setUrlB] = useState("");
-    const [urlC, setUrlC] = useState("");
-    const [urlD, setUrlD] = useState("");
     const [nameA, setNameA] = useState("");
-    const [nameB, setNameB] = useState("");
-    const [nameC, setNameC] = useState("");
-    const [nameD, setNameD] = useState("");  
-    const [choice, setChoice] = useState(false);
     const navigate = useNavigate();
     getWrapDetails();
 
     function getWrapDetails(){
-        fetch('/api/get-first' + '?code=' + code)
+        fetch('/api/get-chnl' + '?code=' + code)
         .then((response) => response.json()) 
         .then((data) => {
                             setUrlA(data.choiceAUrl);

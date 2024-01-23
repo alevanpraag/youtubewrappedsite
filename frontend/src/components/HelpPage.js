@@ -5,116 +5,61 @@ import { useNavigate } from 'react-router-dom';
 import IMAGES from '../index.js';
 
 export default function HelpPage(props){
-  const [page, setPage] = useState(0);
+  const [instructions, setInstructions] = useState(false);
   const navigate = useNavigate();
+  const scrollHeight = self.innerHeight - 100;
 
   function handleHomePressed() {
     navigate('/');
   }   
 
-  function handleChangePage(value){
-    const newPage = page + value;
-    if (newPage >= 0 && newPage <= 6){
-      setPage(newPage);
-    }
+  function handleShowInstructions(){
+    setInstructions(true);
   }
 
   function renderMoreButton(){
     return ( 
             <Grid item xs={12} align="center">
-              <div className="createbutton" onClick={() => handleChangePage(1)}> More </div>
-            </Grid>
-    );
-  }
-
-  function renderNavButtons(){
-    return (
-            <Grid className="footer" container spacing={2} align="center">
-              <Grid item xs={6} align="right">
-                <div className="createbutton" onClick={() => handleChangePage(-1)}>
-                  <img src={IMAGES.rewind} width="49" height="26" />
-                </div>
-              </Grid>
-              <Grid item xs={6} align="left">
-                <div className="createbutton" onClick={() => handleChangePage(1)}>
-                  <img src={IMAGES.forward} width="49" height="26" />
-                </div>
-              </Grid>
+              <div className="createbutton" onClick={handleShowInstructions}> More </div>
             </Grid>
     );
   }
 
   function renderInfo(){
-    switch(page) {
-      case 0:
-        return (       
-          <Grid container spacing={2} align="center">
-            <Grid item xs={12} align="center">
-              <h6> To create a rewind, you must download your YouTube history from:</h6>
-              <Link style={{ color: "#94D2BD", fontSize: "1.5rem" }} to="https://takeout.google.com/">https://takeout.google.com/</Link>
-            </Grid>
-            <Grid item xs={12} align="center">
-              <h6> Click more for step-by-step instructions</h6>
-            </Grid>
-          </Grid>);
-      case 1:
-        return (      
-          <Grid container spacing={2} align="center">
-            <Grid item xs={6} align="right">
-              <img src={IMAGES.imgZero} width="500" height="500" />
-            </Grid>
-            <Grid item xs={6} align="left">
-              <img src={IMAGES.imgOne} width="500" height="500" />
-            </Grid>
-            <Grid item xs={6} align="right">
-              <h6>1. Go to <Link style={{ color: "#94D2BD", fontSize: "1.5rem" }} to="https://takeout.google.com/">https://takeout.google.com/</Link></h6>
-            </Grid>
-            <Grid item xs={6} align="left">
-              <h6>2. Deselect all the data</h6>
-            </Grid>
-          </Grid>);
-      case 2:
-        return (        
-          <Grid item xs={12} align="center">
-            <img src={IMAGES.imgTwo} width="500" height="500" />
-            <h6>3. Scroll down and select "YouTube and YouTube Music"</h6>
-          </Grid> );
-      case 3:
-        return (                    
-          <Grid container spacing={2} align="center">
-            <Grid item xs={6} align="right">
-              <img src={IMAGES.imgFour} width="500" height="500" />
-            </Grid>
-            <Grid item xs={6} align="left">
-              <img src={IMAGES.imgFive} width="500" height="500" />
-            </Grid>
-            <Grid item xs={6} align="right">
-              <h6>4. Click "All YouTube data included"</h6>
-            </Grid>
-            <Grid item xs={6} align="left">
-              <h6>5. Deselect all data except "history"</h6>
-            </Grid>
-          </Grid>);                              
-      case 4:
-        return (        
-          <Grid item xs={12} align="center">
-            <img src={IMAGES.imgSeven} width="500" height="500" />
-            <h6>This is how everything should look before exporting</h6>
-          </Grid> );
-      case 5:
-        return (        
-          <Grid item xs={12} align="center">
-            <img src={IMAGES.imgEight} width="500" height="500" />
-            <h6>Choose how you want to recieve the file</h6>
-          </Grid> );       
-      case 6:
-        return (        
-          <Grid item xs={12} align="center">
-            <h6>You should recieve a zip file from YouTube.</h6>
-            <h6>You can find "watch-history.json" in folder: </h6>
-            <h6>Takeout/YouTube and YouTube Music/history</h6>
-          </Grid> );                                   
-    }    
+    return (
+      <Grid container spacing={2} align="center">
+      <Grid item xs={12} align="center">
+        <h6> To create a rewind, you must download your YouTube history from:</h6>
+        <Link style={{ color: "#94D2BD", fontSize: "1.5rem" }} to="https://takeout.google.com/" target="_blank" rel="noopener noreferrer">https://takeout.google.com/</Link>
+      </Grid>
+      <Grid item xs={12} align="center">
+        <h6> Click more for step-by-step instructions</h6>
+      </Grid>
+    </Grid>);
+  }
+
+  function renderInstructions(){
+    return (      
+      <Grid container spacing={2} >
+        <Grid item xs={6} align="center">
+          <h6 >1. Deselect all the data</h6>
+        </Grid>
+        <Grid item xs={6} align="center">
+          <h6 >2. Select "YouTube and YouTube Music"</h6>
+        </Grid> 
+        <Grid item xs={6} align="center">
+          <img src={IMAGES.stepOne} width="450" height="450" />
+        </Grid>
+        <Grid item xs={6} align="center">
+          <img src={IMAGES.stepTwo} width="450" height="450" />
+        </Grid>         
+        <Grid item xs={12} align="center">
+          <h6 >3. Click next step and then create export</h6>
+        </Grid>
+        <Grid item xs={12} align="center">
+          <h6 style={{ color: "#EE9B00" }}>You can find "watch-history.json" in folder: Takeout/YouTube and YouTube Music/history</h6>
+        </Grid>        
+      </Grid> );                                   
   }
 
     return (
@@ -124,13 +69,12 @@ export default function HelpPage(props){
           <img src={IMAGES.help} width="500" height="100" />
         </Grid> 
         <Grid item xs={12} align="center">
-        {renderInfo()}   
+        { instructions ? renderInstructions() : renderInfo()}
         </Grid>   
         <Grid item xs={12} align="center">
-        { (page > 0) ? null : renderMoreButton()} 
+        { instructions ? null : renderMoreButton()} 
         </Grid>                                     
       </Grid>
-      { (page > 0) ? renderNavButtons() : null} 
       <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">
           <div onClick={handleHomePressed}>

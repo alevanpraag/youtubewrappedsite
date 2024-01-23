@@ -9,8 +9,18 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
+import io
 import os
 from pathlib import Path
+import environ
+from google.cloud import secretmanager
+
+env = environ.Env(DEBUG=(bool, False))
+project_id = "youtube-rewind-410800"
+client = secretmanager.SecretManagerServiceClient()
+name = f"projects/{project_id}/secrets/django_settings/versions/latest"
+payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+env.read_env(io.StringIO(payload))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -85,8 +95,8 @@ if os.getenv('GAE_APPLICATION', None):
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'HOST': '/cloudsql/youtube-rewind-410800:us-central1:youtube-rewind-instance',
-            'USER': os.getenv('GOOGLE_CLOUD_USER', None),
-            'PASSWORD': os.getenv('GOOGLE_CLOUD_PSWD', None),
+            'USER': env('GOOGLE_CLOUD_USER', default=None),
+            'PASSWORD': env('GOOGLE_CLOUD_PSWD', default=None),
             'NAME': 'main',
         }
     }
@@ -102,8 +112,8 @@ else:
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
             'HOST': '127.0.0.1', # DB's IP address
             'PORT': '5432',
-            'USER': 'ale',
-            'PASSWORD': "yE>{Urc_'5ysPR'$",
+            'USER': env('GOOGLE_CLOUD_USER',  default=None),
+            'PASSWORD': env('GOOGLE_CLOUD_PSWD',  default=None),
             'NAME': 'main',
         }
     }

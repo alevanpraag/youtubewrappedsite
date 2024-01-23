@@ -1,24 +1,27 @@
-from django.shortcuts import render, redirect
 from rest_framework import generics, status
 from .serializers import WrappedSerializer, CreateWrapSerializer, VideoSerializer
 from .models import Wrapped, Video
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from datetime import datetime
-from rest_framework.parsers import FormParser, MultiPartParser
-from django.core.files.storage import FileSystemStorage
-from django.core.files.base import File
+from django.http import JsonResponse
+from google.cloud import secretmanager
+import datetime as dt
 import requests
 import json
-import csv
-from django.http import JsonResponse
 import re
 import os
-import datetime as dt
 import calendar
-from django.core.files.storage import default_storage
+import io
+import environ
 
-google_api_key = os.getenv('GOOGLE_API_KEY', None)
+
+env = environ.Env(DEBUG=(bool, False))
+project_id = "youtube-rewind-410800"
+client = secretmanager.SecretManagerServiceClient()
+name = f"projects/{project_id}/secrets/django_settings/versions/latest"
+payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+env.read_env(io.StringIO(payload))
+google_api_key = env('GOOGLE_API_KEY', default=None) 
 
 class AllWrappedView(generics.ListAPIView):
     queryset = Wrapped.objects.all()
@@ -40,11 +43,11 @@ class WrappedView(APIView):
         return Response({'Bad Request': 'Wrap Parameter Not Found in Request'}, status=status.HTTP_400_BAD_REQUEST)
 
 class CreateWrapView(APIView):
-    parser_classes = (MultiPartParser, FormParser)
     serializer_class = CreateWrapSerializer
     lookup_url_kwarg = 'code'
 
     def get_data(self, region, *ids):
+    #with all video ids, gets info from youtube data api
         url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails&part=statistics"
         r = requests.get(url.format(ids=",".join(ids), api_key=google_api_key))
         js = r.json()
@@ -53,6 +56,7 @@ class CreateWrapView(APIView):
             google_api_key)).json()
         categories = {d['id']: d["snippet"]['title'] for d in cat_js["items"]}
         for item in items:
+            #try to get max resolution thumbnail if it exists
             try:
                 url = item['snippet']['thumbnails']['maxres']['url']
             except KeyError:
@@ -63,14 +67,17 @@ class CreateWrapView(APIView):
                 yield None, None, None, None, None, None, None, None
 
     def is_ad(self,video):
+    #checks to see if a video is a an ad
         try:
             if "From Google Ads" in video["details"][0]["name"]:
                 return True
             return False
         except:
             return False
-            
+
+
     def dur_to_mins(self, dur):
+    #converts iso 8601 duration to minutes
         time_raw = re.split("PT(\d*)(H?)(\d*)(M?)(\d*)(S?)",dur)
         time = list(filter(None, time_raw))
         if len(time)==6:
@@ -83,6 +90,7 @@ class CreateWrapView(APIView):
         return mins
 
     def create_videos(self,wrap,video_list, month_dict):
+    #creates a Video object for each video in the watch history
         for i in range(0, len(video_list), 50):
             video_sublst = video_list[i:i + 50]
             for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data( "IE",  *video_sublst):
@@ -95,11 +103,29 @@ class CreateWrapView(APIView):
                     video.save() 
 
     def get_total_time(self,wrap):
+    #get total watch time of user
         total = 0
         for vid in wrap.videos.all():
             total+= int(vid.duration)
         return total       
-        
+
+    def get_video_ids(self, watch_history):
+        #gets all the 2023 the video ids
+        video_list = []
+        month_dict = {}        
+        for video in watch_history:
+            if not self.is_ad(video):
+                if "time" in video:
+                    video_year = int((video['time'])[:4])
+                    video_month = (video['time'])[5:7]
+                    if video_year < 2023:
+                        break
+                    elif "titleUrl" in video:
+                        video_id = str((video['titleUrl'])[32:])
+                        video_list.append(video_id)
+                        month_dict[video_id] = int(video_month)    
+        return video_list, month_dict
+
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()   
@@ -111,19 +137,9 @@ class CreateWrapView(APIView):
             f = request.data.get('file').read()
             my_json = f.decode('utf8').replace("'", '"')
             watch_history = json.loads(my_json)
-            video_list = []
-            month_dict = {}
-            for video in watch_history:
-                if not self.is_ad(video):
-                    if "time" in video:
-                        video_year = int((video['time'])[:4])
-                        video_month = (video['time'])[5:7]
-                        if video_year < 2023:
-                            break
-                        elif "titleUrl" in video:
-                            video_id = str((video['titleUrl'])[32:])
-                            video_list.append(video_id)
-                            month_dict[video_id] = int(video_month)                 
+            video_list, month_dict = self.get_video_ids(watch_history)
+            if not video_list:
+                return Response({'Bad Request': 'No data...'}, status=status.HTTP_400_BAD_REQUEST)
             #if same user requests a new wrap, delete old info
             if queryset.exists():  
                 wrap = queryset[0] 
@@ -138,7 +154,7 @@ class CreateWrapView(APIView):
             self.create_videos(wrap,video_list, month_dict)
             videos = Video.objects.filter(wrap=wrap)
             wrap.channels = videos.order_by().values('channel').distinct().count()
-            wrap.count = videos.order_by().values('video_id').distinct().count()
+            wrap.count = videos.count()#.order_by().values('video_id').distinct().count()
             wrap.time = self.get_total_time(wrap)              
             wrap.save(update_fields=['count','time','channels'])   
             self.request.session['code'] = wrap.code 
@@ -155,11 +171,10 @@ class GetFirstVideo(APIView):
         first_four_dict = {}
         a, b, c, d = None, None, None, None 
         for vid in wrap.videos.all():
-            if vid.category == 'Music':
-                d = c
-                c = b
-                b = a
-                a = vid
+            d = c
+            c = b
+            b = a
+            a = vid
         if a != None:
             first_four_dict["choiceA"] = a.title
             first_four_dict["choiceAUrl"] = a.thumbnail
