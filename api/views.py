@@ -5,6 +5,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.http import JsonResponse
 from google.cloud import secretmanager
+from bs4 import BeautifulSoup
 import datetime as dt
 import requests
 import json
@@ -109,8 +110,10 @@ class CreateWrapView(APIView):
             total+= int(vid.duration)
         return total       
 
-    def get_video_ids(self, watch_history):
+    def read_json(self, f):
         #gets all the 2023 the video ids
+        my_json = f.decode('utf8').replace("'", '"')
+        watch_history = json.loads(my_json)
         video_list = []
         month_dict = {}        
         for video in watch_history:
@@ -126,6 +129,40 @@ class CreateWrapView(APIView):
                         month_dict[video_id] = int(video_month)    
         return video_list, month_dict
 
+    def html_is_ad(self, tag):
+        caption = tag.find('div', attrs={'class':'content-cell mdl-cell mdl-cell--12-col mdl-typography--caption'})
+        if caption:
+            ad = caption.get_text()
+            if "Google Ads" in ad:
+                return True
+        return False       
+
+    def read_html(self,f):
+        video_list = []
+        month_dict = {} 
+        abbr_to_num = {month: num for num, month in enumerate(calendar.month_abbr) if num}
+        soup = BeautifulSoup(f, "lxml")
+        s = soup.find_all('div', attrs={'class':"outer-cell mdl-cell mdl-cell--12-col mdl-shadow--2dp"})
+
+        for tag in s:
+            t = tag.find('div', attrs={'class':'content-cell mdl-cell mdl-cell--6-col mdl-typography--body-1'})
+            try:
+                video_id = t.contents[1].attrs['href'][-11:]
+                date = t.contents[-1]
+            except:
+                video_id = None
+                date = None
+            if not self.html_is_ad(tag):
+                if date:
+                    video_year = int(date.split(",")[1])
+                    video_month = abbr_to_num[date[:3]]
+                    if video_year != 2023:
+                        break
+                    elif video_id:
+                        video_list.append(video_id)
+                        month_dict[video_id] = int(video_month)    
+        return video_list, month_dict
+ 
     def post(self, request, format=None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()   
@@ -134,10 +171,13 @@ class CreateWrapView(APIView):
             name = serializer.data.get('name')
             host = self.request.session.session_key
             queryset = Wrapped.objects.filter(host=host)
-            f = request.data.get('file').read()
-            my_json = f.decode('utf8').replace("'", '"')
-            watch_history = json.loads(my_json)
-            video_list, month_dict = self.get_video_ids(watch_history)
+            f = request.data.get('file')
+            f_read = f.read()
+            f_name = f.name
+            if f_name[-4:] == "html":
+                video_list, month_dict = self.read_html(f_read)
+            else:
+                video_list, month_dict = self.read_json(f_read)
             if not video_list:
                 return Response({'Bad Request': 'No data...'}, status=status.HTTP_400_BAD_REQUEST)
             #if same user requests a new wrap, delete old info

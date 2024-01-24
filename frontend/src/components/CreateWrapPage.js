@@ -98,7 +98,7 @@ export default function CreateWrapPage(props) {
         </Grid>
         <Grid item xs={12} align="center">
         <FormControl>
-          <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json"/>
+          <input type="file" name="file" id="file" className="inputfile" onChange={handleFileChange} accept=".json,.html"/>
 		      <label htmlFor="file"> {filename}</label>
           </FormControl>
         </Grid>     
