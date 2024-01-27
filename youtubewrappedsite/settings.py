@@ -14,6 +14,7 @@ import os
 from pathlib import Path
 import environ
 from google.cloud import secretmanager
+from urllib.parse import urlparse
 
 env = environ.Env(DEBUG=(bool, False))
 project_id = "youtube-rewind-410800"
@@ -21,24 +22,30 @@ client = secretmanager.SecretManagerServiceClient()
 name = f"projects/{project_id}/secrets/django_settings/versions/latest"
 payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
 env.read_env(io.StringIO(payload))
+# SECURITY WARNING: It's recommended that you use this when
+# running in production. The URL will be known once you first deploy
+# to App Engine. This code takes the URL and converts it to both these settings formats.
+SECRET_KEY = env("SECRET_KEY", default=None)
+APPENGINE_URL = env("APPENGINE_URL", default=None)
+if os.getenv('GAE_APPLICATION', None) and APPENGINE_URL:
+    # Ensure a scheme is present in the URL before it's processed.
+    if not urlparse(APPENGINE_URL).scheme:
+        APPENGINE_URL = f"https://{APPENGINE_URL}"
+
+    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
+    CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
+    SECURE_SSL_REDIRECT = True
+else:
+    ALLOWED_HOSTS = ['127.0.0.1:8000','localhost','127.0.0.1']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-tb17x#pb=+pq^si1!3mawbool!b56u=&vl!3!^ywvq9&oex290'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 if os.getenv('GAE_APPLICATION', None):
     DEBUG = False
 else:
     DEBUG = True
-
-ALLOWED_HOSTS = ['youtube-rewind-410800.uc.r.appspot.com', 'localhost','127.0.0.1']
 
 # Application definition
 
@@ -52,6 +59,7 @@ INSTALLED_APPS = [
     'api.apps.ApiConfig',
     'rest_framework',
     'frontend.apps.FrontendConfig',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -163,3 +171,10 @@ else:
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+if os.getenv('GAE_APPLICATION'):
+    DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+    GS_BUCKET_NAME = env('GS_BUCKET_NAME',  default=None)
+    GS_DEFAULT_ACL = 'publicRead' 
+    MEDIA_URL = 'https://storage.googleapis.com/'+GS_BUCKET_NAME+'/'
+    GS_FILE_OVERWRITE = False
