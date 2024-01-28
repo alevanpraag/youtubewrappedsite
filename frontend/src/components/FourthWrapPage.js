@@ -38,33 +38,29 @@ export default function FourthWrapPage(props){
     
     <Grid className="center" container spacing={2}>
       <Grid item xs={12} align="center">
-      <h6>You watched the most videos in this month:</h6>      
+      <h6>You watched the most videos in:</h6>      
       </Grid>   
       <Grid item xs={12} align="center">
-      <h6> <span style={{ color: "#EE9B00", fontSize: "2rem" }}>{month} </span> with <span style={{ color: "#0A9396", fontSize: "1.75rem" }}>{countM} </span> videos</h6>      
+      <h6> <span style={{ color: "#EE9B00", fontSize: "2rem", fontFamily: 'Orbitron' }}>{month} </span> with <span style={{ color: "#0A9396", fontSize: "2rem", fontFamily: 'Orbitron' }}>{countM} </span> videos</h6>      
       </Grid>    
       <Grid item xs={12} align="center">
       <h6>&</h6>      
       </Grid>               
       <Grid item xs={12} align="center">
-      <h6>You watched the most videos in this category:</h6>      
+      <h6>Your most popular category was:</h6>      
       </Grid>       
       <Grid item xs={12} align="center">
-      <h6> <span style={{ color: "#0A9396", fontSize: "1.75rem" }}>{countC} </span> <span style={{ color: "#AE2012", fontSize: "2rem" }}>{cat} </span> videos</h6>      
+      <h6> <span style={{ color: "#AE2012", fontSize: "2rem", fontFamily: 'Orbitron' }}>{cat} </span> with <span style={{ color: "#0A9396", fontSize: "2rem", fontFamily: 'Orbitron' }}>{countC} </span> videos</h6>      
       </Grid>                                 
     </Grid>
-    <Grid className="footer" align="center" container spacing={2} >
-    <Grid item xs={6} align="right">
+    <Grid className="footer" align="center" container spacing={2} gap={2} sx={{justifyContent: "center", alignItems: "center" }} >
         <div className="createbutton" onClick={handleBack}>
           <img src={IMAGES.rewind} width="49" height="26" />
         </div>  
-      </Grid>    
-      <Grid item xs={6} align="left">
         <div className="createbutton" onClick={handleNext}>
           <img src={IMAGES.forward} width="49" height="26" />
-        </div>
-      </Grid>         
-    </Grid>        
+        </div>      
+    </Grid>         
         <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">
           <div onClick={handleHomePressed}>

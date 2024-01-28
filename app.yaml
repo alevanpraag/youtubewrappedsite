@@ -20,10 +20,6 @@ runtime: python311
 
 instance_class: F1
 
-env_variables:
-  # This setting is used in settings.py to configure your ALLOWED_HOSTS
-  APPENGINE_URL: youtube-rewind-410800.uc.r.appspot.com
-
 handlers:
   # This configures Google App Engine to serve the files in the app's static
   # directory.

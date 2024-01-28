@@ -14,9 +14,15 @@ export default function ThirdWrapPage(props){
     const [countA, setCountA] = useState(0);
     const [countB, setCountB] = useState(0);
     const [countC, setCountC] = useState(0);
+    const [mobileView, setMobileView] = useState(false);
     const navigate = useNavigate();
     getWrapDetails();
 
+    function onMobile(){
+      if (window.innerWidth> 0 && window.innerWidth < 700) {
+        setMobileView(true)
+      }    
+    }
     function getWrapDetails(){
         fetch('/api/on-repeat' + '?code=' + code)
         .then((response) => response.json()) 
@@ -43,87 +49,90 @@ export default function ThirdWrapPage(props){
         navigate('/');
       }       
 
-    function renderTop1(){
+    function renderTop(url,name,count,rank){
         return (
             <Container>        
             <Grid item xs={12} align="center">
                 <div className="small-thmnl">        
-                    <img src={urlA} alt="top1" width="360" height="202"></img>
+                    <img src={url} alt="top" width="360" height="202"></img>
                 </div>
             </Grid>        
             <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> 1. {nameA}</h6>
+                <h6 style={{ fontSize: "1rem" }}> <span style={{ color: "#0A9396", fontSize: "1.5rem", fontFamily: 'Orbitron' }}>{rank}. </span> {name}</h6>
             </Grid>           
             <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> watched {countA} times</h6>
+                <h6 style={{ fontSize: "1rem" }}> watched <span style={{ color: "#0A9396", fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
             </Grid>                                                 
         </Container>            
         );
-    }    
-
-    function renderTop2(){
+    }        
+    function renderMiniTop(url,name,count,rank){
       return (
-          <Container>    
-          <Grid item xs={12} align="center">
-                  <div className="small-thmnl">        
-                      <img src={urlB} alt="top2" width="360" height="202"></img>
-                  </div>
+          <>        
+          <Grid item xs={3} sx={{ display: 'flex', justifyContent: "flex-end", alignItems: "center", paddingRight: "20px"}} >
+          <span style={{ color: "#0A9396", fontSize: "3rem", fontFamily: 'Orbitron' }}>{rank} </span>
+          </Grid>
+          <Grid item xs={9} sx={{ display: 'flex', justifyContent: "flex-start", alignItems: "center", gap: "20px"}} >
+              <div className="mini-thmnl">        
+                  <img src={url} alt="top" width="180" height="101"></img>
+              </div>
           </Grid>        
           <Grid item xs={12} align="center">
-              <h6 style={{ fontSize: "1rem" }}>2. {nameB}</h6>
-          </Grid>         
+              <h6 style={{ fontSize: "0.9rem" }}> {name}</h6>
+          </Grid>           
           <Grid item xs={12} align="center">
-            <h6 style={{ fontSize: "1rem" }}> watched {countB} times</h6>
-          </Grid>                                                                       
-      </Container>            
+              <h6 style={{ fontSize: "0.9rem" }}> <span style={{ color: "#0A9396", fontSize: "1rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
+          </Grid>                                                 
+      </>            
       );
   }        
 
+
+function renderMobileTop3(){
+  return (
+    <Grid className="center" container spacing={1}>     
+    <Grid item xs={12} align="center">
+        <h2 style={{ fontSize: "1.5rem" }}> Your top 3 videos this year</h2>      
+    </Grid> 
+      {(countA>0) ? renderMiniTop(urlA,nameA,countA,1) : null}
+      {(countB>0) ? renderMiniTop(urlB,nameB,countB,2) : null}
+      {(countC>0) ? renderMiniTop(urlC,nameC,countC,3) : null}                     
+  </Grid>      
+  );   
+}
+
   function renderTop3(){
     return (
-        <Container>      
-        <Grid item xs={12} align="center">
-            <div className="small-thmnl">        
-                <img src={urlC} alt="top3" width="360" height="202"></img>
-            </div>
-        </Grid>      
-        <Grid item xs={12} align="center">
-            <h6 style={{ fontSize: "1rem" }}>3. {nameC}</h6>
-        </Grid>      
-        <Grid item xs={12} align="center">
-          <h6 style={{ fontSize: "1rem" }}> watched {countC} times</h6>
-        </Grid>                                                                       
-    </Container>            
+      <Grid className="center" container spacing={2}>     
+      <Grid item xs={12} align="center">
+          <h2> Your top 3 videos this year</h2>      
+      </Grid> 
+      <Grid item xs={6} align="center">
+        {(countA>0) ? renderTop(urlA,nameA,countA,1) : null}
+      </Grid>
+      <Grid item xs={6} align="center">
+        {(countB>0) ? renderTop(urlB,nameB,countB,2) : null}
+      </Grid>     
+      <Grid item xs={12} align="center">
+        {(countC>0) ? renderTop(urlC,nameC,countC,3) : null}
+      </Grid>                       
+    </Grid>      
     );
-}     
+  }
+  useEffect(() => {
+    onMobile();
+  });       
 
     return (
         <Container>     
-          <Grid className="center" container spacing={2}>     
-            <Grid item xs={12} align="center">
-                <h2> Your top three videos this year</h2>      
-            </Grid> 
-            <Grid item xs={6} align="center">
-              {(countA>0) ? renderTop1() : null}
-            </Grid>
-            <Grid item xs={6} align="center">
-              {(countB>0) ? renderTop2() : null}
-            </Grid>     
-            <Grid item xs={12} align="center">
-              {(countC>0) ? renderTop3() : null}
-            </Grid>                       
-          </Grid>
-        <Grid className="footer" align="center" container spacing={2} >
-    <Grid item xs={6} align="right">
+          {mobileView ? renderMobileTop3() : renderTop3()}
+          <Grid className="footer" align="center" container spacing={2} gap={2} sx={{justifyContent: "center", alignItems: "center" }} >
         <div className="createbutton" onClick={handleBack}>
           <img src={IMAGES.rewind} width="49" height="26" />
         </div>  
-      </Grid>    
-      <Grid item xs={6} align="left">
         <div className="createbutton" onClick={handleNext}>
           <img src={IMAGES.forward} width="49" height="26" />
-        </div>
-      </Grid>         
+        </div>      
     </Grid>  
         <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">

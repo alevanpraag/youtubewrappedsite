@@ -14,9 +14,14 @@ export default function SecondWrapPage(props){
     const [nameC, setNameC] = useState("");
     const [nameD, setNameD] = useState("");  
     const [choice, setChoice] = useState(false);
+    const [mobileView, setMobileView] = useState(false);
     const navigate = useNavigate();
     getWrapDetails();
-
+    function onMobile(){
+        if (window.innerWidth> 0 && window.innerWidth < 700) {
+          setMobileView(true)
+        }    
+      }
     function getWrapDetails(){
         fetch('/api/get-first' + '?code=' + code)
         .then((response) => response.json()) 
@@ -32,11 +37,21 @@ export default function SecondWrapPage(props){
     }
 
     function handleNext() {
-        navigate('/mywrap4/'+code)
+        if (choice) {
+            navigate('/mywrap4/'+code);
+        } else {
+            setChoice(true);
+        }
+        
     }
 
     function handleBack() {
-        navigate('/mywrap/'+code)
+        if (choice) {
+            setChoice(false);
+        } else {
+            navigate('/mywrap/'+code);
+        }
+       
     }  
     function handleHomePressed() {
         navigate('/');
@@ -45,7 +60,25 @@ export default function SecondWrapPage(props){
     function handleChoiceMade(letter){
         setChoice(true);
     }
-
+    function renderfirstMiniVideo(){
+        return (
+            <Grid className="center" container spacing={2}>
+            <Grid item xs={12} align="center">
+                <h2> You started off the year with:</h2>      
+            </Grid>         
+            <Grid item xs={12} align="center">
+                <div className="minirectangle" width="240" height="135">        
+                    <img src={urlA} alt="firstvideo" width="240" height="135"></img>
+                </div>
+            </Grid>     
+            <Grid item xs={1} align="center"></Grid>
+            <Grid item xs={10} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center" }}>
+                <h6 style={{ fontSize: "1rem"}}>{nameA}</h6> 
+            </Grid>    
+            <Grid item xs={1} align="center"></Grid>                     
+        </Grid>            
+        );
+    }
     function renderfirstVideo(){
         return (
             <Grid className="center" container spacing={2}>
@@ -57,16 +90,57 @@ export default function SecondWrapPage(props){
                     <img src={urlA} alt="firstvideo" width="480" height="270"></img>
                 </div>
             </Grid>     
-            <Grid item xs={12} align="center">
+            <Grid item xs={12} align="center" >
                 <h6>{nameA}</h6> 
             </Grid>                         
         </Grid>            
         );
     }
-
+    function renderMiniChoices(){
+        return (
+            <Grid className="center" container spacing={1} >
+            <Grid item xs={12} align="center">
+                <h2 style={{ fontSize: "1.5rem"}} > Do you know the first video you watched this year?</h2>     
+                <em style={{ fontSize: "1.5rem", color: "#94D2BD", margin: "0" }}> Click to reveal</em>
+            </Grid>                    
+            <Grid item xs={6} align="center">
+                <div className="minichoice" onClick={() => handleChoiceMade("A")}>        
+                    <img src={urlA} alt="choice1" width="180" height="101"></img>
+                </div>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                    <div className="minichoice" onClick={() => handleChoiceMade("B")}>        
+                        <img src={urlB} alt="choice2" width="180" height="101"></img>
+                    </div>
+            </Grid>      
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: ".8rem"}}>{nameA}</h6>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "0.8rem" }}>{nameB}</h6>
+            </Grid>                
+            <Grid item xs={6} align="center">
+                <div className="minichoice" onClick={() => handleChoiceMade("C")}>        
+                    <img src={urlC} alt="choice3" width="180" height="101"></img>
+                </div>
+            </Grid>     
+            <Grid item xs={6} align="center" >
+                <div className="minichoice" onClick={() => handleChoiceMade("D")}>        
+                    <img src={urlD} alt="choice4" width="180" height="101"></img>
+                </div>
+            </Grid>  
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "0.8rem" }}>{nameC}</h6>
+            </Grid>     
+            <Grid item xs={6} align="center">
+                <h6 style={{ fontSize: "0.8rem" }}>{nameD}</h6>
+            </Grid>                                                            
+        </Grid>            
+        );
+    }    
     function renderChoices(){
         return (
-            <Grid className="center" container spacing={2}>
+            <Grid className="center" container spacing={2} >
             <Grid item xs={12} align="center">
                 <h2> Do you know the first video you watched this year?</h2>     
                 <p> <em style={{ fontSize: "1.5rem", color: "#94D2BD" }}> Click to reveal</em></p> 
@@ -105,22 +179,21 @@ export default function SecondWrapPage(props){
             </Grid>                                                            
         </Grid>            
         );
-    }    
+    }   
+    useEffect(() => {
+        onMobile();
+      });     
 
     return (
         <Container>         
-            { choice ? renderfirstVideo() : renderChoices()} 
-        <Grid className="footer" align="center" container spacing={2} >
-    <Grid item xs={6} align="right">
+            { choice ? (mobileView ? renderfirstMiniVideo() : renderfirstVideo()) : (mobileView ? renderMiniChoices() : renderChoices())} 
+            <Grid className="footer" align="center" container spacing={2} gap={2} sx={{justifyContent: "center", alignItems: "center" }} >
         <div className="createbutton" onClick={handleBack}>
           <img src={IMAGES.rewind} width="49" height="26" />
         </div>  
-      </Grid>    
-      <Grid item xs={6} align="left">
         <div className="createbutton" onClick={handleNext}>
           <img src={IMAGES.forward} width="49" height="26" />
-        </div>
-      </Grid>         
+        </div>      
     </Grid>  
         <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">

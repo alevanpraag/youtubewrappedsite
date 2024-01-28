@@ -6,9 +6,30 @@ import IMAGES from '../index.js';
 
 export default function HelpPage(props){
   const [instructions, setInstructions] = useState(false);
+  const [mobileView, setMobileView] = useState(false);
   const navigate = useNavigate();
   const scrollHeight = self.innerHeight - 100;
+  function onMobile(){
+    if (window.innerWidth> 0 && window.innerWidth < 700) {
+      setMobileView(true)
+    }    
+  }
 
+  function title() {
+    if (window.innerWidth> 0 && window.innerWidth < 700) {
+      return (<img src={IMAGES.help} width="300" height="60" />);
+    } else if (window.innerWidth > 700) {
+      return (<img src={IMAGES.help} width="500" height="100" />);
+    } 
+   }
+
+  function handleBack() {
+    if (instructions) {
+      setInstructions(false);
+    } else {
+      navigate('/create');
+    }
+}    
   function handleHomePressed() {
     navigate('/');
   }   
@@ -18,33 +39,76 @@ export default function HelpPage(props){
   }
 
   function renderMoreButton(){
-    return ( 
-            <Grid item xs={12} align="center">
+    return ( <>
+            <Grid item xs={1} align="center"></Grid>    
+            <Grid item xs={10} align="center">
               <div className="createbutton" onClick={handleShowInstructions}> More </div>
             </Grid>
+            <Grid item xs={1} align="center"></Grid>
+            </>
     );
   }
 
   function renderInfo(){
     return (
-      <Grid container spacing={2} align="center">
-      <Grid item xs={12} align="center">
-        <h6> To create a rewind, you must download your YouTube history from:</h6>
-        <Link style={{ color: "#94D2BD", fontSize: "1.5rem" }} to="https://takeout.google.com/" target="_blank" rel="noopener noreferrer">https://takeout.google.com/</Link>
+      <>
+        <Grid item xs={1} align="center"></Grid>   
+      <Grid item xs={10} align="center">
+        <h4 style={{ color: "#EE9B00"}}> To create a rewind, you must download your YouTube history from:</h4>
+        <Link style={{ color: "#94D2BD", fontSize: "1.25rem" }} to="https://takeout.google.com/" target="_blank" rel="noopener noreferrer">https://takeout.google.com/</Link>
       </Grid>
-      <Grid item xs={12} align="center">
-        <h6> Click more for step-by-step instructions</h6>
+      <Grid item xs={1} align="center"></Grid>   
+      <Grid item xs={1} align="center"></Grid>   
+      <Grid item xs={10} align="center">
+        <h4 style={{ color: "#E9D8A6"}}> Click more for step-by-step instructions</h4>
       </Grid>
-    </Grid>);
+      <Grid item xs={1} align="center"></Grid>
+    </>);
+  }
+
+  function renderMobile(){
+    return (
+      <>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem" }} >1. Deselect all the data</h6>
+        </Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center" paddingBottom={2}>
+          <img src={IMAGES.stepOne} width="300" height="300" />
+        </Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem" }}>2. Select "YouTube and YouTube Music"</h6>
+        </Grid> 
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center" paddingBottom={2}>
+          <img src={IMAGES.stepTwo} width="300" height="300"  />
+        </Grid>         
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem"}}>3. Click next step and then create export</h6>
+        </Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem", color: "#EE9B00" }}>You can find your "watch-history" file in folder: Takeout/YouTube and YouTube Music/history</h6>
+        </Grid>   
+        <Grid item xs={1} align="center"></Grid>     
+      </> );      
   }
 
   function renderInstructions(){
     return (      
-      <Grid container spacing={2} >
+      <>
         <Grid item xs={6} align="center">
           <h6 >1. Deselect all the data</h6>
         </Grid>
-        <Grid item xs={6} align="center">
+        <Grid item xs={6} align="center" >
           <h6 >2. Select "YouTube and YouTube Music"</h6>
         </Grid> 
         <Grid item xs={6} align="center">
@@ -52,28 +116,37 @@ export default function HelpPage(props){
         </Grid>
         <Grid item xs={6} align="center">
           <img src={IMAGES.stepTwo} width="450" height="450" />
-        </Grid>         
-        <Grid item xs={12} align="center">
+        </Grid>     
+        <Grid item xs={1} align="center"></Grid>    
+        <Grid item xs={10} align="center">
           <h6 >3. Click next step and then create export</h6>
         </Grid>
-        <Grid item xs={12} align="center">
-          <h6 style={{ color: "#EE9B00" }}>You can find "watch-history.json" in folder: Takeout/YouTube and YouTube Music/history</h6>
-        </Grid>        
-      </Grid> );                                   
+        <Grid item xs={1} align="center"></Grid> 
+        <Grid item xs={1} align="center"></Grid> 
+        <Grid item xs={10} align="center">
+          <h6 style={{ color: "#EE9B00" }}>You can find "watch-history" file in folder: Takeout/YouTube and YouTube Music/history</h6>
+        </Grid>  
+        <Grid item xs={1} align="center"></Grid>         
+      </> );                                   
   }
 
+  useEffect(() => {
+    title();
+    onMobile();
+  });      
+
     return (
-      <Container>       
-      <Grid className="center" container spacing={1}>    
-        <Grid item xs={12} align="center">
-          <img src={IMAGES.help} width="500" height="100" />
+      <Container >       
+      <Grid className="center" container spacing={1} marginBottom={5} style={{maxHeight: '100vh', overflow: 'auto'}}>    
+        <Grid item xs={12}  marginTop={'45px'} align="center">
+          {title()}
         </Grid> 
-        <Grid item xs={12} align="center">
-        { instructions ? renderInstructions() : renderInfo()}
-        </Grid>   
-        <Grid item xs={12} align="center">
+        { instructions ? (mobileView ? renderMobile() :renderInstructions() ): renderInfo()}
         { instructions ? null : renderMoreButton()} 
-        </Grid>                                     
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center" paddingBottom={5}>
+        <div className="createbutton" onClick={handleBack}> Back </div>
+      </Grid>           
       </Grid>
       <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">

@@ -8,9 +8,16 @@ export default function MyWrapPage(props){
   const [count, setCount] = useState(null);
   const [time, setTime] = useState(null);
   const [chnls, setChnls] = useState(null);
+  const [mobileView, setMobileView] = useState(false);
   const navigate = useNavigate();
   let {code} = useParams();
   getWrapDetails(); 
+
+  function onMobile(){
+    if (window.innerWidth> 0 && window.innerWidth < 700) {
+      setMobileView(true)
+    }    
+  }
 
   function getWrapDetails(){
     fetch('/api/get-wrap' + '?code=' + code)
@@ -48,13 +55,24 @@ export default function MyWrapPage(props){
     navigate('/mywrap2/'+code)
   }
   function handleBack() {
-    navigate('/create')
+    navigate('/')
 }    
   function handleHomePressed() {
     navigate('/');
   }   
 
   function numberCounter(num){
+    if (mobileView) {
+      return (
+        <div style={{display: "flex", justifyContent: "flex-end"}} >
+          <div className="minicounter">{tenthous(num)}</div>          
+          <div className="minicounter">{thous(num)}</div>
+          <div className="minicounter">{huns(num)}</div>
+          <div className="minicounter">{tens(num)}</div>
+          <div className="minicounter">{ones(num)}</div>  
+        </div>       
+      );
+    }
     return (
       <div style={{display: "flex", justifyContent: "flex-end"}} >
         <div className="counter">{tenthous(num)}</div>          
@@ -65,10 +83,38 @@ export default function MyWrapPage(props){
       </div>       
     );
   }
+  function renderMobileView(){
+    return (
+      <Grid className="center" container spacing={1} >
+      <Grid item xs={12} align="center" sx={{ justifyContent: "center", alignItems: "center" }}>
+        <h3 style={{ color: "#94D2BD", fontSize: "4rem" }}>{name}'s</h3>
+        <h1 style={{ color: "#0A9396", fontSize: "6rem" }}>2023</h1>
+      </Grid>   
+      <Grid item xs={8} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        {numberCounter(time)}  
+        </Grid>          
+        <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>
+        <h4 style={{ color: '#EE9B00'}}>minutes</h4>    
+      </Grid>    
+      <Grid item xs={8} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        {numberCounter(count)}   
+        </Grid>          
+        <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>        
+        <h4 style={{ color: '#EE9B00'}}> videos</h4>            
+      </Grid>        
+      <Grid item xs={8} sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+        {numberCounter(chnls)}    
+        </Grid>          
+        <Grid item xs={4} sx={{ display: "flex", justifyContent: "flex-start", alignItems: "center" }}>          
+        <h4 style={{ color: '#EE9B00'}}> channels</h4>            
+      </Grid>                   
+    </Grid>
+    );
+  }
 
-  return (
-    <Container>    
-    <Grid className="center" container spacing={2} >
+  function renderCounts(){
+    return (
+      <Grid className="center" container spacing={2} >
       <Grid item xs={6} display="flex" alignItems="center" justifyContent="flex-end">
         <h3 style={{ color: "#0A9396", fontSize: "6rem" }}>{name}'s</h3>
       </Grid>
@@ -94,18 +140,22 @@ export default function MyWrapPage(props){
         <h2> channels</h2>
       </Grid>                  
     </Grid>
-    <Grid className="footer" align="center" container spacing={2} >
-    <Grid item xs={6} align="right">
+    );
+  }
+  useEffect(() => {
+    onMobile();
+  });    
+  return (
+    <Container>    
+      {(mobileView) ? renderMobileView() : renderCounts()}  
+    <Grid className="footer" align="center" container spacing={2} gap={2} sx={{justifyContent: "center", alignItems: "center" }} >
         <div className="createbutton" onClick={handleBack}>
           <img src={IMAGES.rewind} width="49" height="26" />
         </div>  
-      </Grid>    
-      <Grid item xs={6} align="left">
         <div className="createbutton" onClick={handleNext}>
           <img src={IMAGES.forward} width="49" height="26" />
-        </div>
-      </Grid>         
-    </Grid>
+        </div>      
+    </Grid>  
     <Grid className="header" container spacing={1}>
         <Grid item xs={6} align="left">
           <div onClick={handleHomePressed}>
