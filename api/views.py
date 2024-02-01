@@ -60,6 +60,7 @@ class CreateWrapView(APIView):
 
     def get_data(self, region, *ids):
     #with all video ids, gets info from youtube data api
+        print('getting data')
         url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails&part=statistics"
         try:
             r = requests.get(url.format(ids=",".join(ids), api_key=google_api_key), timeout=60)

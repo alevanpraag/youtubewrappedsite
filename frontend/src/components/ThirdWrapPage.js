@@ -51,19 +51,20 @@ export default function ThirdWrapPage(props){
 
     function renderTop(url,name,count,rank){
         return (
-            <Container>        
-            <Grid item xs={12} align="center">
-                <div className="small-thmnl">        
-                    <img src={url} alt="top" width="270" height="152"></img>
-                </div>
+            <Grid container spacing={1}>      
+            <Grid item xs={1} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}}>
+            <span style={{ color: "#0A9396", fontSize: "3.5rem", fontFamily: 'Orbitron' }}>{rank} </span>
             </Grid>        
-            <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> <span style={{ color: "#0A9396", fontSize: "1.5rem", fontFamily: 'Orbitron' }}>{rank}. </span> {name}</h6>
+            <Grid item xs={5} align="center">
+            <div className="small-thmnl">        
+                    <img src={url} alt="top" width="240" height="135"></img>
+                </div>
             </Grid>           
-            <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> watched <span style={{ color: "#0A9396", fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
-            </Grid>                                                 
-        </Container>            
+            <Grid item xs={6} align="center" sx={{ display: 'flex', flexDirection:'column', justifyContent: "center", alignItems: "center"}}>
+            <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {name}</h6>
+                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> videos</h6>
+            </Grid>                                               
+        </Grid>            
         );
     }        
     function renderMiniTop(url,name,count,rank){
@@ -92,7 +93,7 @@ function renderMobileTop3(){
   return (
     <Grid container spacing={1}>     
     <Grid item xs={12} align="center">
-        <h2 style={{ color: "#EE9B00", fontSize: "1.5rem" }}> Your top 3 videos this year</h2>      
+    <h2 style={{ fontSize: "1.5rem",color: "#BB3E03" }}> Your most <span style={{ color: "#EE9B00", fontFamily: 'Orbitron' }}>rewatched videos</span> this year</h2>      
     </Grid> 
       {(countA>0) ? renderMiniTop(urlA,nameA,countA,1) : null}
       {(countB>0) ? renderMiniTop(urlB,nameB,countB,2) : null}
@@ -105,17 +106,23 @@ function renderMobileTop3(){
     return (
       <Grid container spacing={2}>     
       <Grid item xs={12} align="center">
-          <h2 style={{ color: "#EE9B00" }}> Your top 3 videos this year</h2>      
+      <h2 style={{ color: "#BB3E03" }}> Your most <span style={{ color: "#EE9B00", fontFamily: 'Orbitron' }}>rewatched videos</span> this year</h2>      
       </Grid> 
-      <Grid item xs={6} align="center">
+      <Grid item xs={1}></Grid>
+      <Grid item xs={10} align="center">
         {(countA>0) ? renderTop(urlA,nameA,countA,1) : null}
       </Grid>
-      <Grid item xs={6} align="center">
+      <Grid item xs={1}></Grid>
+      <Grid item xs={1}></Grid>
+      <Grid item xs={10} align="center">
         {(countB>0) ? renderTop(urlB,nameB,countB,2) : null}
       </Grid>     
-      <Grid item xs={12} align="center">
+      <Grid item xs={1}></Grid>
+      <Grid item xs={1}></Grid>
+      <Grid item xs={10} align="center">
         {(countC>0) ? renderTop(urlC,nameC,countC,3) : null}
-      </Grid>                       
+      </Grid>         
+      <Grid item xs={1}></Grid>              
     </Grid>      
     );
   }

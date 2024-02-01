@@ -126,8 +126,8 @@ h1 {
 }
 
 .small-thmnl {
-  height: 152px;
-  width: 270px;
+  height: 135px;
+  width: 240px;
   color: #EAF0F6;
   border: 2px outset #0A9396;
 }
@@ -256,7 +256,7 @@ h1 {
     font-weight: 400;
     font-size: 1.25rem;
     color: #E9D8A6;
-    max-width: 80%;
+    max-width: 75%;
     border: 1px outset rgba(255, 255, 255, .2);
     background:rgba(255, 255, 255, .1);  
     /* 20px */

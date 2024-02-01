@@ -144,8 +144,10 @@ export default function HelpPage(props){
           {title()}    
       { instructions ? (mobileView ? renderMobile() :renderInstructions() ): renderInfo()}        
       { instructions ? null : renderMoreButton()} 
+      </section> 
+      <footer>
       <div className="createbutton" style={{ margin: "10px" }}  onClick={handleBack}> Back </div>
-      </section>     
+      </footer>          
       </div>
       )
 }

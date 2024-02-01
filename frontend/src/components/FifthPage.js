@@ -72,35 +72,35 @@ export default function FifthWrapPage(props){
     }
     function renderTop(url,name,count,rank){
         return (
-            <Container>        
-            <Grid item xs={12} align="center">     
-                <img src={url} alt="top" width="88" height="88"></img>
-            </Grid>        
-            <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> <span style={{ color: "#0A9396", fontSize: "1.5rem", fontFamily: 'Orbitron' }}>{rank}. </span> {name}</h6>
-            </Grid>           
-            <Grid item xs={12} align="center">
-                <h6 style={{ fontSize: "1rem" }}> watched <span style={{ color: "#0A9396", fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
+        <Grid container spacing={1}> 
+        <Grid item xs={3}></Grid>       
+            <Grid item xs={2} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}}>     
+                <span style={{ color: "#94D2BD", fontSize: "3.5rem", fontFamily: 'Orbitron' }}>{rank} </span>
+            </Grid>  
+            <Grid item xs={2} align="center">     
+                <img src={url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
+            </Grid> 
+            <Grid item xs={5} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "flex-start", flexDirection: 'column'}}>       
+                <h6 style={{ color: '#E9D8A6',fontSize: "2rem", display: 'flex', justifyContent: "center", alignItems: "flex-end"}}> {name}</h6>
+                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> videos</h6>
             </Grid>                                                 
-        </Container>            
+        </Grid>            
         );
     }        
     function renderMiniTop(url,name,count,rank){
       return (
-          <>        
-          <Grid item xs={6} sx={{ display: 'flex', justifyContent: "flex-end", alignItems: "center", paddingRight: "20px"}} >
-          <span style={{ color: "#0A9396", fontSize: "3rem", fontFamily: 'Orbitron' }}>{rank} </span>
-          </Grid>
-          <Grid item xs={6} sx={{ display: 'flex', justifyContent: "flex-start", alignItems: "center", gap: "20px"}} >
-              <img src={url} alt="top" width="88" height="88"></img>
-          </Grid>        
-          <Grid item xs={12} align="center">
-              <h6 style={{ fontSize: "0.9rem"}}> {name}</h6>
-          </Grid>           
-          <Grid item xs={12} align="center">
-              <h6 style={{ fontSize: "0.9rem" }}> <span style={{ color: "#0A9396", fontSize: "1rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
-          </Grid>                                                 
-      </>            
+        <Grid container spacing={1}>      
+            <Grid item xs={2} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}}>     
+                <span style={{ color: "#94D2BD", fontSize: "2rem", fontFamily: 'Orbitron' }}>{rank} </span>
+            </Grid>  
+            <Grid item xs={5} align="center">     
+                <img src={url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
+            </Grid> 
+            <Grid item xs={5} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center", flexDirection: 'column'}}>       
+                <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {name}</h6>
+                <h6 style={{ color: '#005F73',fontSize: "1rem"  }}> {count} videos</h6>
+            </Grid>                                                 
+        </Grid>     
       );
   }        
 
@@ -108,8 +108,8 @@ export default function FifthWrapPage(props){
 function renderMobileTop3(){
   return (
     <Grid container spacing={1}>     
-    <Grid item xs={12} align="center">
-        <h2 style={{ color: "#EE9B00", fontSize: "1.5rem" }}> Your top 3 channels this year</h2>      
+    <Grid item xs={12} align="center" style={{marginBottom: '10px'}}>
+    <h2 style={{ fontSize: "1.5rem",color: "#BB3E03" }}> Your <span style={{ color: "#EE9B00", fontFamily: 'Orbitron' }}>top channels</span> this year</h2>      
     </Grid> 
       {(countA>0) ? renderMiniTop(urlA,channelA,countA,1) : null}
       {(countB>0) ? renderMiniTop(urlB,channelB,countB,2) : null}
@@ -120,19 +120,25 @@ function renderMobileTop3(){
 
   function renderTop3(){
     return (
-      <Grid container spacing={2}>     
-      <Grid item xs={12} align="center">
-          <h2 style={{ color: "#EE9B00" }}> Your top 3 channels this year</h2>      
+      <Grid container spacing={1}>     
+      <Grid item xs={12} align="center" style={{marginBottom: '10px'}}>
+          <h2 style={{ color: "#BB3E03" }}> Your <span style={{ color: "#EE9B00", fontSize: "2rem", fontFamily: 'Orbitron' }}>top channels</span> this year</h2>      
       </Grid> 
-      <Grid item xs={4} align="center">
+      <Grid item xs={1}></Grid>
+      <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         {(countA>0) ? renderTop(urlA,channelA,countA,1) : null}
       </Grid>
-      <Grid item xs={4} align="center">
+      <Grid item xs={1}></Grid>
+      <Grid item xs={1}></Grid>
+      <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         {(countB>0) ? renderTop(urlB,channelB,countB,2) : null}
-      </Grid>     
-      <Grid item xs={4} align="center">
+      </Grid>   
+      <Grid item xs={1}></Grid>
+      <Grid item xs={1}></Grid>  
+      <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
         {(countC>0) ? renderTop(urlC,channelC,countC,3) : null}
-      </Grid>                       
+      </Grid>    
+      <Grid item xs={2}></Grid>                   
     </Grid>      
     );
   }
