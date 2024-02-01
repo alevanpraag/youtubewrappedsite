@@ -15,6 +15,9 @@ from pathlib import Path
 import environ
 from google.cloud import secretmanager
 from urllib.parse import urlparse
+import django
+from django.utils.translation import gettext
+django.utils.translation.ugettext = gettext
 
 env = environ.Env(DEBUG=(bool, False))
 project_id = "youtube-rewind-410800"
@@ -172,7 +175,7 @@ else:
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if os.getenv('GAE_APPLICATION'):
+if True:
     DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
     GS_BUCKET_NAME = env('GS_BUCKET_NAME',  default=None)
     GS_DEFAULT_ACL = 'publicRead' 

@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import AllWrappedView, CreateWrapView, WrappedView, GetFirstVideo, GetMonthsCats, CheckUser, OnRepeat
+from .views import AllWrappedView, CreateWrapView, WrappedView, GetFirstVideo, GetMonthsCats, CheckUser, OnRepeat, TopChannels
 
 urlpatterns = [
     path('home',AllWrappedView.as_view()),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('get-monthscats', GetMonthsCats.as_view()), 
     path('check-user', CheckUser.as_view()), 
     path('on-repeat', OnRepeat.as_view()),     
+    path('top-channel', TopChannels.as_view()),    
 ]
