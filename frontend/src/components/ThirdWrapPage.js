@@ -5,18 +5,11 @@ import IMAGES from '../index.js';
 
 export default function ThirdWrapPage(props){
     let {code} = useParams();
-    const [urlA, setUrlA] = useState("");
-    const [urlB, setUrlB] = useState("");
-    const [urlC, setUrlC] = useState("");
-    const [nameA, setNameA] = useState("");
-    const [nameB, setNameB] = useState("");
-    const [nameC, setNameC] = useState("");
-    const [countA, setCountA] = useState(0);
-    const [countB, setCountB] = useState(0);
-    const [countC, setCountC] = useState(0);
+    const [videoA, setVideoA] = useState({name: '', url: '', count: 0});
+    const [videoB, setVideoB] = useState({name: '', url: '', count: 0});
+    const [videoC, setVideoC] = useState({name: '', url: '', count: 0});
     const [mobileView, setMobileView] = useState(false);
     const navigate = useNavigate();
-    getWrapDetails();
 
     function onMobile(){
       if (window.innerWidth> 0 && window.innerWidth < 700) {
@@ -27,15 +20,22 @@ export default function ThirdWrapPage(props){
         fetch('/api/on-repeat' + '?code=' + code)
         .then((response) => response.json()) 
         .then((data) => {
-                            setUrlA(data.urlA);
-                            setUrlB(data.urlB);
-                            setUrlC(data.urlC);
-                            setNameA(data.nameA);
-                            setNameB(data.nameB);
-                            setNameC(data.nameC);
-                            setCountA(data.countA);
-                            setCountB(data.countB);
-                            setCountC(data.countC);                          })        
+                          setVideoA({
+                            name: data.nameA,
+                            url: data.urlA,
+                            count: data.countA
+                        });          
+                          setVideoB({
+                            name: data.nameB,
+                            url: data.urlB,
+                            count: data.countB
+                        });     
+                          setVideoC({
+                            name: data.nameC,
+                            url: data.urlC,
+                            count: data.countC
+                        });                                                                 
+          })        
     }
 
     function handleNext() {
@@ -49,7 +49,7 @@ export default function ThirdWrapPage(props){
         navigate('/');
       }       
 
-    function renderTop(url,name,count,rank){
+    function renderTop(video,rank){
         return (
             <Grid container spacing={1}>      
             <Grid item xs={1} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}}>
@@ -57,17 +57,17 @@ export default function ThirdWrapPage(props){
             </Grid>        
             <Grid item xs={5} align="center">
             <div className="small-thmnl">        
-                    <img src={url} alt="top" width="240" height="135"></img>
+                    <img src={video.url} alt="top" width="240" height="135"></img>
                 </div>
             </Grid>           
             <Grid item xs={6} align="center" sx={{ display: 'flex', flexDirection:'column', justifyContent: "center", alignItems: "center"}}>
-            <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {name}</h6>
-                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> videos</h6>
+            <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {video.name}</h6>
+                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{video.count} </span> videos</h6>
             </Grid>                                               
         </Grid>            
         );
     }        
-    function renderMiniTop(url,name,count,rank){
+    function renderMiniTop(video,rank){
       return (
           <>        
           <Grid item xs={4} sx={{ display: 'flex', justifyContent: "flex-end", alignItems: "center", paddingRight: "20px"}} >
@@ -75,14 +75,14 @@ export default function ThirdWrapPage(props){
           </Grid>
           <Grid item xs={8} sx={{ display: 'flex', justifyContent: "flex-start", alignItems: "center", gap: "20px"}} >
               <div className="mini-thmnl">        
-                  <img src={url} alt="top" width="160" height="90"></img>
+                  <img src={video.url} alt="top" width="160" height="90"></img>
               </div>
           </Grid>        
           <Grid item xs={12} align="center">
-              <h6 style={{ fontSize: "0.9rem"}}> {name}</h6>
+              <h6 style={{ fontSize: "0.9rem"}}> {video.name}</h6>
           </Grid>           
           <Grid item xs={12} align="center">
-              <h6 style={{ fontSize: "0.9rem" }}> <span style={{ color: "#0A9396", fontSize: "1rem", fontFamily: 'Orbitron' }}>{count} </span> times</h6>
+              <h6 style={{ fontSize: "0.9rem" }}> <span style={{ color: "#0A9396", fontSize: "1rem", fontFamily: 'Orbitron' }}>{video.count} </span> times</h6>
           </Grid>                                                 
       </>            
       );
@@ -95,9 +95,9 @@ function renderMobileTop3(){
     <Grid item xs={12} align="center">
     <h2 style={{ fontSize: "1.5rem",color: "#BB3E03" }}> Your most <span style={{ color: "#EE9B00", fontFamily: 'Orbitron' }}>rewatched videos</span> this year</h2>      
     </Grid> 
-      {(countA>0) ? renderMiniTop(urlA,nameA,countA,1) : null}
-      {(countB>0) ? renderMiniTop(urlB,nameB,countB,2) : null}
-      {(countC>0) ? renderMiniTop(urlC,nameC,countC,3) : null}                     
+      {(videoA.count>0) ? renderMiniTop(videoA,1) : null}
+      {(videoB.count>0) ? renderMiniTop(videoB,2) : null}
+      {(videoC.count>0) ? renderMiniTop(videoC,3) : null}                     
   </Grid>      
   );   
 }
@@ -110,25 +110,26 @@ function renderMobileTop3(){
       </Grid> 
       <Grid item xs={1}></Grid>
       <Grid item xs={10} align="center">
-        {(countA>0) ? renderTop(urlA,nameA,countA,1) : null}
+        {(videoA.count>0) ? renderTop(videoA,1) : null}
       </Grid>
       <Grid item xs={1}></Grid>
       <Grid item xs={1}></Grid>
       <Grid item xs={10} align="center">
-        {(countB>0) ? renderTop(urlB,nameB,countB,2) : null}
+        {(videoB.count>0) ? renderTop(videoB,2) : null}
       </Grid>     
       <Grid item xs={1}></Grid>
       <Grid item xs={1}></Grid>
       <Grid item xs={10} align="center">
-        {(countC>0) ? renderTop(urlC,nameC,countC,3) : null}
+        {(videoC.count>0) ? renderTop(videoC,3) : null}
       </Grid>         
       <Grid item xs={1}></Grid>              
     </Grid>      
     );
   }
   useEffect(() => {
+    getWrapDetails();
     onMobile();
-  });       
+}, []);  
 
     return (
     <div className="wrap">    

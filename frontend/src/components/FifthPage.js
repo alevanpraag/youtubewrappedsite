@@ -4,22 +4,14 @@ import { Container, Grid} from '@mui/material';
 import IMAGES from '../index.js';
 
 export default function FifthWrapPage(props){
-    const [channelA, setChannelA] = useState("");
-    const [countA, setCountA] = useState("");
-    const [urlA, setUrlA] = useState("");
-    const [channelB, setChannelB] = useState("");
-    const [countB, setCountB] = useState("");
-    const [urlB, setUrlB] = useState("");
-    const [channelC, setChannelC] = useState("");
-    const [countC, setCountC] = useState("");
-    const [urlC, setUrlC] = useState(""); 
+    const [channelA, setChannelA] = useState({name: '', url: '', count: 0});
+    const [channelB, setChannelB] = useState({name: '', url: '', count: 0});
+    const [channelC, setChannelC] = useState({name: '', url: '', count: 0});
     const [mobileView, setMobileView] = useState(false);
 
     const navigate = useNavigate();
 
     let {code} = useParams();
-    
-    getWrapDetails();
 
     function onMobile(){
         if (window.innerWidth> 0 && window.innerWidth < 700) {
@@ -30,19 +22,27 @@ export default function FifthWrapPage(props){
     function getWrapDetails(){
         fetch('/api/top-channel' + '?code=' + code)
         .then((response) => response.json()) 
-        .then((data) => {setChannelA(data.channelA);
-                        setCountA(data.countA);
-                        setUrlA(data.thmnlA);
-                        setChannelB(data.channelB);
-                        setCountB(data.countB);
-                        setUrlB(data.thmnlB);
-                        setChannelC(data.channelC);
-                        setCountC(data.countC);
-                        setUrlC(data.thmnlC);})        
+        .then((data) => {
+                        setChannelA({
+                            name: data.channelA,
+                            url: data.thmnlA,
+                            count: data.countA
+                        });          
+                        setChannelB({
+                            name: data.channelB,
+                            url: data.thmnlB,
+                            count: data.countB
+                        });     
+                        setChannelC({
+                            name: data.channelC,
+                            url: data.thmnlC,
+                            count: data.countC
+                        });                            
+                    })        
     }
 
     function handleNext() {
-        return null;
+        navigate('/mywrap6/'+code)
     }
 
     function handleBack() {
@@ -70,7 +70,7 @@ export default function FifthWrapPage(props){
         </Grid>            
         );
     }
-    function renderTop(url,name,count,rank){
+    function renderTop(channel,rank){
         return (
         <Grid container spacing={1}> 
         <Grid item xs={3}></Grid>       
@@ -78,27 +78,27 @@ export default function FifthWrapPage(props){
                 <span style={{ color: "#94D2BD", fontSize: "3.5rem", fontFamily: 'Orbitron' }}>{rank} </span>
             </Grid>  
             <Grid item xs={2} align="center">     
-                <img src={url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
+                <img src={channel.url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
             </Grid> 
             <Grid item xs={5} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "flex-start", flexDirection: 'column'}}>       
-                <h6 style={{ color: '#E9D8A6',fontSize: "2rem", display: 'flex', justifyContent: "center", alignItems: "flex-end"}}> {name}</h6>
-                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{count} </span> videos</h6>
+                <h6 style={{ color: '#E9D8A6',fontSize: "2rem", display: 'flex', justifyContent: "center", alignItems: "flex-end"}}> {channel.name}</h6>
+                <h6 style={{ color: '#0A9396',fontSize: "1.25rem"  }}> watched <span style={{color: '#94D2BD',fontSize: "1.25rem", fontFamily: 'Orbitron' }}>{channel.count} </span> videos</h6>
             </Grid>                                                 
         </Grid>            
         );
     }        
-    function renderMiniTop(url,name,count,rank){
+    function renderMiniTop(channel,rank){
       return (
         <Grid container spacing={1}>      
             <Grid item xs={2} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}}>     
                 <span style={{ color: "#94D2BD", fontSize: "2rem", fontFamily: 'Orbitron' }}>{rank} </span>
             </Grid>  
             <Grid item xs={5} align="center">     
-                <img src={url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
+                <img src={channel.url} sx={{ display: 'flex', justifyContent: "center", alignItems: "center"}} alt="top" width="88" height="88"></img>
             </Grid> 
             <Grid item xs={5} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center", flexDirection: 'column'}}>       
-                <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {name}</h6>
-                <h6 style={{ color: '#005F73',fontSize: "1rem"  }}> {count} videos</h6>
+                <h6 style={{ color: '#E9D8A6',fontSize: "1.5rem"}}> {channel.name}</h6>
+                <h6 style={{ color: '#005F73',fontSize: "1rem"  }}> {channel.count} videos</h6>
             </Grid>                                                 
         </Grid>     
       );
@@ -111,9 +111,9 @@ function renderMobileTop3(){
     <Grid item xs={12} align="center" style={{marginBottom: '10px'}}>
     <h2 style={{ fontSize: "1.5rem",color: "#BB3E03" }}> Your <span style={{ color: "#EE9B00", fontFamily: 'Orbitron' }}>top channels</span> this year</h2>      
     </Grid> 
-      {(countA>0) ? renderMiniTop(urlA,channelA,countA,1) : null}
-      {(countB>0) ? renderMiniTop(urlB,channelB,countB,2) : null}
-      {(countC>0) ? renderMiniTop(urlC,channelC,countC,3) : null}                     
+      {(channelA.count>0) ? renderMiniTop(channelA,1) : null}
+      {(channelB.count>0) ? renderMiniTop(channelB,2) : null}
+      {(channelC.count>0) ? renderMiniTop(channelC,3) : null}                     
   </Grid>      
   );   
 }
@@ -126,25 +126,26 @@ function renderMobileTop3(){
       </Grid> 
       <Grid item xs={1}></Grid>
       <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        {(countA>0) ? renderTop(urlA,channelA,countA,1) : null}
+        {(channelA.count>0) ? renderTop(channelA,1) : null}
       </Grid>
       <Grid item xs={1}></Grid>
       <Grid item xs={1}></Grid>
       <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        {(countB>0) ? renderTop(urlB,channelB,countB,2) : null}
+        {(channelB.count>0) ? renderTop(channelB,2) : null}
       </Grid>   
       <Grid item xs={1}></Grid>
       <Grid item xs={1}></Grid>  
       <Grid item xs={10} align="center" style={{display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-        {(countC>0) ? renderTop(urlC,channelC,countC,3) : null}
+        {(channelC.count>0) ? renderTop(channelC,3) : null}
       </Grid>    
       <Grid item xs={2}></Grid>                   
     </Grid>      
     );
   }
   useEffect(() => {
+    getWrapDetails();
     onMobile();
-  });       
+}, []);    
 
     return (
         <div className="wrap">    

@@ -39,7 +39,11 @@ export default function HelpPage(props){
   }
 
   function renderMoreButton(){
-    return (<div className="createbutton" style={{ margin: "10px" }} onClick={handleShowInstructions}> More </div>);
+    return (
+    <>
+    <div className="createbutton" style={{ margin: "10px" }} onClick={handleShowInstructions}> More </div>
+    <div className="createbutton" style={{ margin: "10px" }}  onClick={handleBack}> Back </div>
+    </>);
   }
 
   function renderInfo(){
@@ -84,14 +88,38 @@ export default function HelpPage(props){
         <Grid item xs={1} align="center"></Grid>
         <Grid item xs={1} align="center"></Grid>
         <Grid item xs={10} align="center">
-          <h6 style={{ fontSize: "1.25rem"}}>3. Click next step and then create export</h6>
+          <h6 style={{ fontSize: "1.25rem" }} >3. Select "All YouTube data included"</h6>
+        </Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center" paddingBottom={2}>
+          <img src={IMAGES.stepThree} width="300" height="300" />
         </Grid>
         <Grid item xs={1} align="center"></Grid>
         <Grid item xs={1} align="center"></Grid>
         <Grid item xs={10} align="center">
-          <h6 style={{ fontSize: "1.25rem", color: "#EE9B00" }}>You can find your "watch-history" file in folder: Takeout/YouTube and YouTube Music/history</h6>
+          <h6 style={{ fontSize: "1.25rem" }}>4. Select only "history"</h6>
+        </Grid> 
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center" paddingBottom={2}>
+          <img src={IMAGES.stepFour} width="300" height="300"  />
+        </Grid>         
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem"}}>5. Click next step and then create export</h6>
+        </Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={1} align="center"></Grid>
+        <Grid item xs={10} align="center">
+          <h6 style={{ fontSize: "1.25rem", color: "#CA6702" }}>You can find your <span style={{ color: "#EE9B00" }}> watch-history </span>file in folder:</h6>
+          <h6 style={{ fontSize: "1.25rem", color: "#EE9B00" }}>Takeout &#8594; YouTube and YouTube Music &#8594; history</h6>
         </Grid>   
-        <Grid item xs={1} align="center"></Grid>     
+        <Grid item xs={1} align="center"></Grid>   
+        <Grid item xs={12} align="center">
+      <div className="createbutton" style={{ margin: "10px" }}  onClick={handleBack}> Back </div>
+      </Grid>  
       </Grid> );      
   }
 
@@ -110,16 +138,36 @@ export default function HelpPage(props){
         <Grid item xs={6} align="center">
           <img src={IMAGES.stepTwo} width="450" height="450" />
         </Grid>     
+        <Grid item xs={12} align="center">
+          <hr color='#AE2012' width='90%'/>
+          <hr color='#AE2012' width='90%'/>
+        </Grid>  
+        <Grid item xs={6} align="center">
+          <h6 >3. Select "All YouTube data included"</h6>
+        </Grid>
+        <Grid item xs={6} align="center" >
+          <h6 >4. Select only "history"</h6>
+        </Grid> 
+        <Grid item xs={6} align="center">
+          <img src={IMAGES.stepThree} width="450" height="450" />
+        </Grid>
+        <Grid item xs={6} align="center">
+          <img src={IMAGES.stepFour} width="450" height="450" />
+        </Grid>    
         <Grid item xs={1} align="center"></Grid>    
         <Grid item xs={10} align="center">
-          <h6 >3. Click next step and then create export</h6>
+          <h6 >5. Click next step and then create export</h6>
         </Grid>
         <Grid item xs={1} align="center"></Grid> 
         <Grid item xs={1} align="center"></Grid> 
         <Grid item xs={10} align="center">
-          <h6 style={{ color: "#EE9B00" }}>You can find "watch-history" file in folder: Takeout/YouTube and YouTube Music/history</h6>
+          <h6 style={{ color: "#CA6702" }}>You can find your <span style={{ color: "#EE9B00" }}> watch-history </span> file in folder: </h6>
+          <h6 style={{ color: "#EE9B00" }}>Takeout &#8594; YouTube and YouTube Music &#8594; history</h6>
         </Grid>  
-        <Grid item xs={1} align="center"></Grid>         
+        <Grid item xs={1} align="center"></Grid>  
+        <Grid item xs={12} align="center">
+      <div className="createbutton" style={{ margin: "10px" }}  onClick={handleBack}> Back </div>
+      </Grid>       
       </Grid> );                                   
   }
 
@@ -144,10 +192,7 @@ export default function HelpPage(props){
           {title()}    
       { instructions ? (mobileView ? renderMobile() :renderInstructions() ): renderInfo()}        
       { instructions ? null : renderMoreButton()} 
-      </section> 
-      <footer>
-      <div className="createbutton" style={{ margin: "10px" }}  onClick={handleBack}> Back </div>
-      </footer>          
+      </section>     
       </div>
       )
 }

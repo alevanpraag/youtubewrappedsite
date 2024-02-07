@@ -10,7 +10,6 @@ export default function FourthWrapPage(props){
     const [countC, setCountC] = useState(null);
     const [month, setMonth] = useState(null);
     const [cat, setCat] = useState(null);          
-    getCatData();
 
     function handleBack() {
         navigate('/mywrap2/'+code)
@@ -32,6 +31,10 @@ export default function FourthWrapPage(props){
     function handleHomePressed() {
       navigate('/');
     }  
+
+    useEffect(() => {
+      getCatData();
+  }, []); 
 
       return (
     <div className="wrap">    

@@ -118,6 +118,12 @@ else:
     #     $ cloud_sql_proxy -instances=[INSTANCE_CONNECTION_NAME]=tcp:3306
     #
     # See https://cloud.google.com/sql/docs/mysql-connect-proxy
+    # DATABASES = {
+    #     "default": {
+    #         "ENGINE": "django.db.backends.sqlite3",
+    #         "NAME": "mydatabase",
+    #     }
+    # }
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql_psycopg2',
@@ -128,6 +134,7 @@ else:
             'NAME': 'main',
         }
     }
+
 
 
 # Password validation
@@ -158,7 +165,10 @@ TIME_ZONE = 'UTC'
 
 USE_I18N = True
 
-USE_TZ = False
+if os.getenv('GAE_APPLICATION', None):
+    USE_TZ = False
+else:
+    USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)

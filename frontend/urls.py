@@ -9,6 +9,7 @@ urlpatterns = [
     path('mywrap3/<str:code>', index), 
     path('mywrap4/<str:code>', index),      
     path('mywrap5/<str:code>', index),    
+    path('mywrap6/<str:code>', index),   
     path('help', index),
     path('test', index)
 ]

@@ -12,6 +12,7 @@ import SecondWrapPage from "./SecondWrapPage";
 import ThirdWrapPage from "./ThirdWrapPage";
 import FourthWrapPage from "./FourthWrapPage";
 import FifthWrapPage from "./FifthPage";
+import SixthWrapPage from "./SixthPage";
 import TestPage from "./TestPage";
 import HelpPage from "./HelpPage";
 
@@ -27,6 +28,7 @@ export default function App(props) {
                   <Route path="/mywrap3/:code" element={<ThirdWrapPage/>}/>
                   <Route path="/mywrap4/:code" element={<FourthWrapPage/>}/>
                   <Route path="/mywrap5/:code" element={<FifthWrapPage/>}/>
+                  <Route path="/mywrap6/:code" element={<SixthWrapPage/>}/>
                   <Route path="/test" element={<TestPage/>}/>
                   <Route path="/help" element={<HelpPage/>}/>
               </Routes>

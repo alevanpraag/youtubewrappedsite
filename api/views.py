@@ -7,6 +7,10 @@ import psutil
 import requests
 import calendar
 import environ
+import os
+import ijson
+import concurrent.futures
+import pytz
 
 from google.cloud import secretmanager
 from django.core.files.storage import default_storage
@@ -24,7 +28,6 @@ try:
 except:
     from bs4 import BeautifulSoup
 
-
 gc.collect()
 env = environ.Env(DEBUG=(bool, False))
 project_id = "youtube-rewind-410800"
@@ -34,6 +37,8 @@ payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
 env.read_env(io.StringIO(payload))
 google_api_key = env('GOOGLE_API_KEY', default=None) 
 rewind_year = 2023
+VIDEO_BATCH_SIZE = 50
+REQUEST_TIMEOUT = 60
 
 class AllWrappedView(generics.ListAPIView):
     queryset = Wrapped.objects.all()
@@ -60,7 +65,6 @@ class CreateWrapView(APIView):
 
     def get_data(self, region, *ids):
     #with all video ids, gets info from youtube data api
-        print('getting data')
         url = "https://www.googleapis.com/youtube/v3/videos?part=snippet&id={ids}&key={api_key}&part=contentDetails&part=statistics"
         try:
             r = requests.get(url.format(ids=",".join(ids), api_key=google_api_key), timeout=60)
@@ -93,7 +97,6 @@ class CreateWrapView(APIView):
         except:
             return False
 
-
     def dur_to_mins(self, dur):
     #converts iso 8601 duration to minutes
         time_raw = re.split("PT(\d*)(H?)(\d*)(M?)(\d*)(S?)",dur)
@@ -107,32 +110,38 @@ class CreateWrapView(APIView):
             mins = 0
         return mins    
 
-    def create_videos(self,wrap,video_list, month_dict, watch_dict):
-    #creates a Video object for each video in the watch history
-        for i in range(0, len(video_list), 50):
-            video_sublst = video_list[i:i + 50]
-            for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in self.get_data( "IE",  *video_sublst):
-                if video_id != None:
-                    if len(video_id) > 100:
-                        video_id = video_id[0:100]
+    def create_videos(self, wrap, video_list, month_dict, watch_dict):
+        def process_batch(batch):
+            videos_to_create = []
+
+            for video_id, title, iso_date, views, cat, chnl, thumbnail, dur in batch:
+                if video_id is not None:
                     if len(title) > 100:
                         title = title[0:100]
-                    if len(cat) > 100:
-                        cat = cat[0:100]
-                    if len(chnl) > 100:
-                        chnl = chnl[0:100]
-                    if len(thumbnail) > 100:
-                        thumbnail = thumbnail[0:100]
-                    month = month_dict[video_id]
-                    watch = watch_dict[video_id]
-                    date = dt.datetime.fromisoformat(iso_date)
-                    duration = self.dur_to_mins(dur)
-                    try:
-                        video = Video(video_id= video_id, wrap = wrap, title = title, channel = chnl, duration = duration,
-                                            date = date, views = views, category = cat, thumbnail = thumbnail, month= month, watched = watch)
-                        video.save() 
-                    except Exception as e:
-                        print('invalid video')
+                    videos_to_create.append(Video(
+                        video_id=video_id,
+                        wrap=wrap,
+                        title=title,
+                        channel=chnl,
+                        duration=self.dur_to_mins(dur),
+                        date=dt.datetime.fromisoformat(iso_date),
+                        views=views,
+                        category=cat,
+                        thumbnail=thumbnail,
+                        month=month_dict.get(video_id),
+                        watched=watch_dict.get(video_id)
+                    ))
+
+            Video.objects.bulk_create(videos_to_create)
+
+        # Split video_list into batches
+        batch_size = VIDEO_BATCH_SIZE
+        batches = [video_list[i:i + batch_size] for i in range(0, len(video_list), batch_size)]
+
+        # Use ThreadPoolExecutor for concurrent execution
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(process_batch, map(lambda batch: self.get_data("IE", *batch), batches))
+
 
     def get_total_time(self,wrap):
     #get total watch time of user
@@ -143,34 +152,20 @@ class CreateWrapView(APIView):
 
     def read_json(self, wrap):
         #gets all the rewind_year the video ids
-        print('reading...')
-        gc.collect()
         with default_storage.open(wrap.filename) as f:
-            print('read')
-            f_read = f.read()
-        try:
-            print('try')
-            my_json = f_read.decode('utf8').replace("'", '"')
-            watch_history = json.loads(my_json)
-        except:
-            try: #fix broken json by removing last broken entry
-                print("fixing...")
-                my_json = f_read.decode('utf8').replace("'", '"')
-                x,y,z = my_json.rpartition(''',{\n    "header": "YouTube"''')
-                new_json = x + "]"
-                watch_history = json.loads(new_json)
-                print(len(watch_history))
-                print('fixed')
+            my_json = (f.read()).decode('utf8').replace("'", '"')
+            try:
+                watch_history = ijson.items(my_json, 'item')
             except Exception as e:
+                watch_history = None
                 print(e)
         video_list = []
         month_dict = {}        
         watch_dict = {}
-        print("going in")
         for video in watch_history:
             if not self.is_ad(video):
                 if "time" in video:
-                    date = dt.datetime.fromisoformat(video['time'])
+                    date = dt.datetime.fromisoformat(video['time']).replace(tzinfo=pytz.utc)
                     video_year = date.year
                     video_month = date.month
                     if video_year > rewind_year:
@@ -190,8 +185,6 @@ class CreateWrapView(APIView):
                             video_list.append(video_id)
                             month_dict[video_id] = video_month 
                             watch_dict[video_id] = date
-        gc.collect()
-        print('done')
         return video_list, month_dict, watch_dict
 
     def html_is_ad(self, tag):
@@ -203,7 +196,6 @@ class CreateWrapView(APIView):
         return False     
 
     def read_html(self,wrap):
-        gc.collect()
         video_list = []
         month_dict = {} 
         watch_dict = {}
@@ -243,7 +235,7 @@ class CreateWrapView(APIView):
                         elif int(year) < rewind_year:
                             break
                         elif video_id:
-                            curr = dt.datetime(int(year), video_month, int(day), int(hour), int(minute), int(second))
+                            curr = dt.datetime(int(year), video_month, int(day), int(hour), int(minute), int(second)).replace(tzinfo=pytz.utc)
                             video_list.append(video_id)
                             if video_id in watch_dict: 
                                 if watch_dict[video_id] > curr:
@@ -283,8 +275,11 @@ class CreateWrapView(APIView):
                 video_list, month_dict, watch_dict = self.read_json(wrap)
             if not video_list:
                 return Response({'Bad Request': 'No data...'}, status=status.HTTP_400_BAD_REQUEST)
-            self.create_videos(wrap,video_list, month_dict,watch_dict)
-            gc.collect()
+            try:
+                self.create_videos(wrap,video_list, month_dict,watch_dict)
+            except Exception as e:
+                print('error is ')
+                print(e)
             videos = Video.objects.filter(wrap=wrap)
             wrap.channels = videos.order_by().values('channel').distinct().count()
             wrap.count = videos.count()#.order_by().values('video_id').distinct().count()
@@ -449,7 +444,7 @@ class TopChannels(APIView):
     #with all video ids, gets info from youtube data api GET https://www.googleapis.com/youtube/v3/channels?part=snippet&id+CHANNEL_ID&fields=items%2Fsnippet%2Fthumbnails&key={YOUR_API_KEY}
         url = "https://www.googleapis.com/youtube/v3/channels?key={api_key}&id={id}&part=snippet"
         try:
-            r = requests.get(url.format(id=channel_id, api_key=google_api_key), timeout=60)
+            r = requests.get(url.format(id=channel_id, api_key=google_api_key), timeout=REQUEST_TIMEOUT)
         except requests.exceptions.Timeout:
             print("Timed out")
             return None, None
@@ -495,5 +490,37 @@ class TopChannels(APIView):
                 videos = Video.objects.filter(wrap=wrap)
                 top = self.get_most(videos)
                 return JsonResponse(top, status=status.HTTP_200_OK)
+            return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST) 
+
+class LongestVideo(APIView):
+    lookup_url_kwarg = 'code'
+
+    def get_longest(self,videos):
+        data = {} 
+        longest_videos = videos.order_by('-duration')
+        oldest_videos = videos.order_by('date')
+        if len(oldest_videos) > 0:
+            old = oldest_videos[0]
+            data['nameO'] = old.title
+            d = old.date.strftime("%B %Y")
+            data['dateO'] = d
+            data['urlO'] = old.thumbnail
+        if len(longest_videos) > 0:
+            longest = longest_videos[0]
+            data['nameL'] = longest.title
+            data['durL'] = longest.duration
+            data['urlL'] = longest.thumbnail
+        return data
+
+    def get(self, request, format=None):
+        code = request.GET.get(self.lookup_url_kwarg)
+        if code != None:
+            queryset = Wrapped.objects.filter(code=code)
+            if len(queryset) > 0: 
+                wrap = queryset[0] 
+                videos = Video.objects.filter(wrap=wrap)
+                data = self.get_longest(videos)
+                return JsonResponse(data, status=status.HTTP_200_OK)
             return Response({'Bad Request': 'Wrap Not Found'}, status=status.HTTP_404_NOT_FOUND)
         return Response({'Bad Request': 'Missing Parameters'}, status=status.HTTP_400_BAD_REQUEST) 

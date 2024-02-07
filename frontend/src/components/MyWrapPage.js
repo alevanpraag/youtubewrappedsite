@@ -11,7 +11,6 @@ export default function MyWrapPage(props){
   const [mobileView, setMobileView] = useState(false);
   const navigate = useNavigate();
   let {code} = useParams();
-  getWrapDetails(); 
 
   function onMobile(){
     if (window.innerWidth> 0 && window.innerWidth < 700) {
@@ -143,8 +142,9 @@ export default function MyWrapPage(props){
     );
   }
   useEffect(() => {
+    getWrapDetails();
     onMobile();
-  });    
+}, []);   
   return (
     <div className="wrap">    
     <header>

@@ -5,18 +5,13 @@ import IMAGES from '../index.js';
 
 export default function SecondWrapPage(props){
     let {code} = useParams();
-    const [urlA, setUrlA] = useState("");
-    const [urlB, setUrlB] = useState("");
-    const [urlC, setUrlC] = useState("");
-    const [urlD, setUrlD] = useState("");
-    const [nameA, setNameA] = useState("");
-    const [nameB, setNameB] = useState("");
-    const [nameC, setNameC] = useState("");
-    const [nameD, setNameD] = useState("");  
+    const [videoA, setVideoA] = useState({name: '', url: ''});
+    const [videoB, setVideoB] = useState({name: '', url: ''});
+    const [videoC, setVideoC] = useState({name: '', url: ''});
+    const [videoD, setVideoD] = useState({name: '', url: ''});
     const [choice, setChoice] = useState(false);
     const [mobileView, setMobileView] = useState(false);
     const navigate = useNavigate();
-    getWrapDetails();
 
     function onMobile(){
         if (window.innerWidth> 0 && window.innerWidth < 700) {
@@ -27,14 +22,23 @@ export default function SecondWrapPage(props){
         fetch('/api/get-first' + '?code=' + code)
         .then((response) => response.json()) 
         .then((data) => {
-                            setUrlA(data.choiceAUrl);
-                            setUrlB(data.choiceBUrl);
-                            setUrlC(data.choiceCUrl);
-                            setUrlD(data.choiceDUrl);
-                            setNameA(data.choiceA);
-                            setNameB(data.choiceB);
-                            setNameC(data.choiceC);
-                            setNameD(data.choiceD);})        
+                            setVideoA({
+                                name: data.choiceA,
+                                url: data.choiceAUrl
+                            });          
+                            setVideoB({
+                                name: data.choiceB,
+                                url: data.choiceBUrl
+                            });     
+                            setVideoC({
+                                name: data.choiceC,
+                                url: data.choiceCUrl
+                            });    
+                            setVideoD({
+                                name: data.choiceD,
+                                url: data.choiceDUrl
+                            });  
+                        })        
     }
 
     function handleNext() {
@@ -69,12 +73,12 @@ export default function SecondWrapPage(props){
             </Grid>         
             <Grid item xs={12} align="center">
                 <div className="minirectangle" width="240" height="135">        
-                    <img src={urlA} alt="firstvideo" width="240" height="135"></img>
+                    <img src={videoA.url} alt="firstvideo" width="240" height="135"></img>
                 </div>
             </Grid>     
             <Grid item xs={1} align="center"></Grid>
             <Grid item xs={10} align="center" sx={{ display: 'flex', justifyContent: "center", alignItems: "center" }}>
-                <h6 style={{ fontSize: "1rem"}}>{nameA}</h6> 
+                <h6 style={{ fontSize: "1rem"}}>{videoA.name}</h6> 
             </Grid>    
             <Grid item xs={1} align="center"></Grid>                     
         </Grid>            
@@ -88,22 +92,22 @@ export default function SecondWrapPage(props){
             </Grid>         
             <Grid item xs={12} align="center">
                 <div className="rectangle" width="480" height="270">        
-                    <img src={urlA} alt="firstvideo" width="480" height="270"></img>
+                    <img src={videoA.url} alt="firstvideo" width="480" height="270"></img>
                 </div>
             </Grid>     
             <Grid item xs={12} align="center" >
-                <h6>{nameA}</h6> 
+                <h6>{videoA.name}</h6> 
             </Grid>                         
         </Grid>            
         );
     }
 
-    function renderMiniChoice(url,name){
+    function renderMiniChoice(video){
         return (
             <Grid item xs={6} align="center">
                 <div className="minichoice" onClick={() => handleChoiceMade()}>        
-                    <img src={url} alt="choice" width="160" height="90"></img>
-                    <h6 >{name}</h6>
+                    <img src={video.url} alt="choice" width="160" height="90"></img>
+                    <h6 >{video.name}</h6>
                 </div>
             </Grid>              
         );
@@ -115,19 +119,19 @@ export default function SecondWrapPage(props){
                 <h2 style={{ color: '#EE9B00',fontSize: "1.5rem"}} > Do you know the first video you watched this year?</h2>     
                 <em style={{ fontSize: "1.5rem", color: "#94D2BD", margin: "0" }}> Click to reveal</em>
             </Grid>      
-            {renderMiniChoice(urlA,nameA)}   
-            {renderMiniChoice(urlB,nameB)} 
-            {renderMiniChoice(urlC,nameC)} 
-            {renderMiniChoice(urlD,nameD)}                                                 
+            {renderMiniChoice(videoA)}   
+            {renderMiniChoice(videoB)} 
+            {renderMiniChoice(videoC)} 
+            {renderMiniChoice(videoD)}                                                 
         </Grid>            
         );
     }   
-    function renderChoice(url,name,choice){
+    function renderChoice(video){
         return (
             <Grid item xs={6} align="center">
                 <div className="choice" onClick={() => handleChoiceMade()}>        
-                    <img src={url} alt="choice1" width="260" height="152"></img>
-                    <h6 >{name}</h6>
+                    <img src={video.url} alt="choice1" width="260" height="152"></img>
+                    <h6 >{video.name}</h6>
                 </div>
             </Grid>              
         );
@@ -139,16 +143,17 @@ export default function SecondWrapPage(props){
                 <h2 style={{ color: '#EE9B00', fontSize: "1.5rem" }}> Do you know the first video you watched this year?</h2> <br/> 
                 <em style={{ fontSize: "1.5rem", color: "#94D2BD", margin: "0" }}> Click to reveal</em>
             </Grid>   
-            {renderChoice(urlA,nameA)}   
-            {renderChoice(urlB,nameB)} 
-            {renderChoice(urlC,nameC)} 
-            {renderChoice(urlD,nameD)}                                                                                       
+            {renderChoice(videoA)}   
+            {renderChoice(videoB)} 
+            {renderChoice(videoC)} 
+            {renderChoice(videoD)}                                                                                       
         </Grid>            
         );
     }   
     useEffect(() => {
+        getWrapDetails();
         onMobile();
-      });     
+    }, []);   
 
     return (
         <div className="wrap">   
